@@ -15,12 +15,10 @@
 */
 package Sprint3;
 
-<<<<<<< Updated upstream
 import Entity.*;
 import Handler.*;
 import More.*;
 import java.io.ByteArrayOutputStream;
-=======
 import Entity.Boitemessages;
 import Entity.Utilisateur;
 import Handler.BoitemessagesHandler;
@@ -29,7 +27,6 @@ import Handler.UtilisateurHandler;
 import More.HttpMultipartRequest;
 import More.PieChartCanvas;
 import More.StringTokenizer;
->>>>>>> Stashed changes
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -84,17 +81,15 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private String  userPass;      //have to saved
     private int     userType;      //have to saved
     private int     CorG;
-<<<<<<< Updated upstream
+
     private Displayable lastDisplayed;
     
     //Connexion
-=======
+
     private Command upload;
-    private Command listC;
-    private Utilisateur[] utilisateur;
     private Command gerants;
      //Connexion
->>>>>>> Stashed changes
+
     HttpConnection hc;
     DataInputStream dis;
     String url = "http://localhost/Pi_MOB_DAO/";
@@ -146,7 +141,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private List        lstO;
     private Command     listOffreCom;
     private Offre [] offres;
-    Form formO = new Form("Infos offre");
+    Form formO ;
     private Command     mapC;
     
     // </editor-fold>
@@ -156,6 +151,11 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private Command listC;
     private Utilisateur[] utilisateur;
     
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" Gerant Screen">
+    private List        lstG;
+    private Form fgerant;
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Archive Screen">
@@ -511,9 +511,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 }
             }).start();
         }
-<<<<<<< Updated upstream
         if (c == List.SELECT_COMMAND && d == lstO) {
-            
+            formO = new Form("Infos offre");
             formO.append("Informations Offre: \n");
             formO.append(showOffre(lstO.getSelectedIndex()));
             try {
@@ -562,8 +561,6 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             display.setCurrent(formA);
         }
         // </editor-fold>
-=======
-        // </editor-fold> 
         
         // <editor-fold defaultstate="collapsed" desc=" Liste Gerants Command ">
          if (c == gerants) {
@@ -583,10 +580,15 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
 
             display.setCurrent(connectingSegment());
         }
-        
+        if (c == List.SELECT_COMMAND && d == lstG) {
+            fgerant = new Form("Infos Gerant");
+            fgerant.append("Informations Gerant: \n");
+            fgerant.append(showGerant(lstG.getSelectedIndex()));
+            
+            display.setCurrent(fgerant);
+        }
         // </editor-fold>
         
->>>>>>> Stashed changes
     }
     public void commandAction(Command c, Item item) {
         
@@ -710,11 +712,11 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         inbox= new Command("Inbox", Command.SCREEN, 0);
         statCom= new Command("Stat", Command.SCREEN, 0);
         listC   =   new Command("List Clients", Command.SCREEN, 0);
-<<<<<<< Updated upstream
+
         listOffreCom  =   new Command("List Offre", Command.SCREEN, 0);
-=======
+
         gerants = new Command("Liste des gerants", Command.SCREEN, 0);
->>>>>>> Stashed changes
+
         XForm.addCommand(exit);
         XForm.addCommand(inbox);
         XForm.addCommand(listC);
@@ -1282,10 +1284,6 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     }
     // </editor-fold>
     
-    // </editor-fold>
-    
-<<<<<<< Updated upstream
-=======
     // <editor-fold defaultstate="collapsed" desc=" GerantHandler ">
     void GerantHandler() throws IOException{
         try {
@@ -1298,12 +1296,12 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 parser.parse(dis, gerantHandler);
                 // display the result
                 utilisateur = gerantHandler.getUtilisateur();
-                lst = new List("Liste gerants", List.IMPLICIT);
+                lstG = new List("Liste gerants", List.IMPLICIT);
                     
                     if (utilisateur.length > 0) {
 
                         for (int i = 0; i < utilisateur.length; i++) {
-                            lst.append(utilisateur[i].getNom()+" "
+                            lstG.append(utilisateur[i].getNom()+" "
                                     +utilisateur[i].getPrenom()+" "
                                     +utilisateur[i].getMail(), null);
                         }
@@ -1311,10 +1309,10 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 back   =   new Command("Back", Command.EXIT, 0);
                 exit   =   new Command("Exit", Command.OK, 0);
                 
-                lst.addCommand(back);
-                lst.addCommand(exit);
-                lst.setCommandListener(this);
-                display.setCurrent(lst);
+                lstG.addCommand(back);
+                lstG.addCommand(exit);
+                lstG.setCommandListener(this);
+                display.setCurrent(lstG);
         } catch (ParserConfigurationException ex) {
             ex.printStackTrace();
         } catch (SAXException ex) {
@@ -1323,8 +1321,46 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     }
     // </editor-fold>  
     
+    // <editor-fold defaultstate="collapsed" desc=" showArchive ">
+    private String showGerant(int i) {
+        String res = "";
+        sb = new StringBuffer();
+        if (utilisateur.length > 0) {
+            sb.append("*");
+            sb.append(utilisateur[i].getId());
+            sb.append("\n");
+            sb.append("* ");
+            sb.append(utilisateur[i].getNom());
+            sb.append("\n");
+            sb.append("* ");
+            sb.append(utilisateur[i].getPrenom());
+            sb.append("\n");
+            sb.append("* ");
+            sb.append(utilisateur[i].getMail());
+            sb.append("\n");
+            sb.append("* ");
+            sb.append(utilisateur[i].getPassword());
+            sb.append("\n");
+            sb.append("* ");
+            sb.append(utilisateur[i].getNumFix());
+            sb.append("\n");
+            sb.append("* ");
+            sb.append(utilisateur[i].getNumMobile());
+            sb.append("\n");
+            
+        }
+        res = sb.toString();
+        sb = new StringBuffer("");
+        return res;
+    }
+    // </editor-fold>
+    
+    // </editor-fold>
+    
+
+    
+    
     
     // </editor-fold> 
 
->>>>>>> Stashed changes
 }
