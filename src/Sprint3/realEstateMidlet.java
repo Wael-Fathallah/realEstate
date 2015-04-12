@@ -15,10 +15,21 @@
 */
 package Sprint3;
 
+<<<<<<< Updated upstream
 import Entity.*;
 import Handler.*;
 import More.*;
 import java.io.ByteArrayOutputStream;
+=======
+import Entity.Boitemessages;
+import Entity.Utilisateur;
+import Handler.BoitemessagesHandler;
+import Handler.GerantHandler;
+import Handler.UtilisateurHandler;
+import More.HttpMultipartRequest;
+import More.PieChartCanvas;
+import More.StringTokenizer;
+>>>>>>> Stashed changes
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -73,9 +84,17 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private String  userPass;      //have to saved
     private int     userType;      //have to saved
     private int     CorG;
+<<<<<<< Updated upstream
     private Displayable lastDisplayed;
     
     //Connexion
+=======
+    private Command upload;
+    private Command listC;
+    private Utilisateur[] utilisateur;
+    private Command gerants;
+     //Connexion
+>>>>>>> Stashed changes
     HttpConnection hc;
     DataInputStream dis;
     String url = "http://localhost/Pi_MOB_DAO/";
@@ -492,6 +511,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 }
             }).start();
         }
+<<<<<<< Updated upstream
         if (c == List.SELECT_COMMAND && d == lstO) {
             
             formO.append("Informations Offre: \n");
@@ -542,6 +562,31 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             display.setCurrent(formA);
         }
         // </editor-fold>
+=======
+        // </editor-fold> 
+        
+        // <editor-fold defaultstate="collapsed" desc=" Liste Gerants Command ">
+         if (c == gerants) {
+            
+            runState = "Gerants";
+            
+            urlX="Utilisateur/getXmlGerants.php";
+            new Thread(new Runnable() {
+                    public void run() {
+                        try {              
+                            GerantHandler();
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }).start();       
+
+            display.setCurrent(connectingSegment());
+        }
+        
+        // </editor-fold>
+        
+>>>>>>> Stashed changes
     }
     public void commandAction(Command c, Item item) {
         
@@ -665,10 +710,15 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         inbox= new Command("Inbox", Command.SCREEN, 0);
         statCom= new Command("Stat", Command.SCREEN, 0);
         listC   =   new Command("List Clients", Command.SCREEN, 0);
+<<<<<<< Updated upstream
         listOffreCom  =   new Command("List Offre", Command.SCREEN, 0);
+=======
+        gerants = new Command("Liste des gerants", Command.SCREEN, 0);
+>>>>>>> Stashed changes
         XForm.addCommand(exit);
         XForm.addCommand(inbox);
         XForm.addCommand(listC);
+        XForm.addCommand(gerants);
         XForm.addCommand(statCom);
         XForm.addCommand(listOffreCom);
         XForm.setCommandListener(this);
@@ -1234,4 +1284,47 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     
     // </editor-fold>
     
+<<<<<<< Updated upstream
+=======
+    // <editor-fold defaultstate="collapsed" desc=" GerantHandler ">
+    void GerantHandler() throws IOException{
+        try {
+            GerantHandler gerantHandler = new GerantHandler();
+                // get a parser object
+                SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+                // get an InputStream from somewhere (could be HttpConnection, for example)
+                hc = (HttpConnection) Connector.open(url+replace(urlX, " ", "+"));
+                dis = new DataInputStream(hc.openDataInputStream());
+                parser.parse(dis, gerantHandler);
+                // display the result
+                utilisateur = gerantHandler.getUtilisateur();
+                lst = new List("Liste gerants", List.IMPLICIT);
+                    
+                    if (utilisateur.length > 0) {
+
+                        for (int i = 0; i < utilisateur.length; i++) {
+                            lst.append(utilisateur[i].getNom()+" "
+                                    +utilisateur[i].getPrenom()+" "
+                                    +utilisateur[i].getMail(), null);
+                        }
+                    }
+                back   =   new Command("Back", Command.EXIT, 0);
+                exit   =   new Command("Exit", Command.OK, 0);
+                
+                lst.addCommand(back);
+                lst.addCommand(exit);
+                lst.setCommandListener(this);
+                display.setCurrent(lst);
+        } catch (ParserConfigurationException ex) {
+            ex.printStackTrace();
+        } catch (SAXException ex) {
+            ex.printStackTrace();
+        }
+    }
+    // </editor-fold>  
+    
+    
+    // </editor-fold> 
+
+>>>>>>> Stashed changes
 }
