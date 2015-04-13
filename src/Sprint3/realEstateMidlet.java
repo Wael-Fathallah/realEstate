@@ -18,15 +18,27 @@ package Sprint3;
 
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
+import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.Form;
+import javax.microedition.lcdui.TextField;
 import javax.microedition.midlet.*;
 
 /**
  * @author Stack overFlow TEAM
  */
 public class realEstateMidlet extends MIDlet implements CommandListener  {
+    //Global variable
+    private Display     display;
+    //Login Screen 
+    private TextField   email;
+    private TextField   password;
+    private Form        loginForm;
+    private Command     next;
 
     public void startApp() {
+        display = Display.getDisplay(this);
+        display.setCurrent(loginSegment());
     }
     
     public void pauseApp() {
@@ -39,7 +51,16 @@ public class realEstateMidlet extends MIDlet implements CommandListener  {
         
     }
     
-    private void loginSegment() {
+    private Form loginSegment() {
+        email = new TextField("Email :", "", 50, TextField.ANY);
+        password = new TextField("Password :", "", 50, TextField.ANY);
+        loginForm = new Form("Login");
+        next= new Command("Next", Command.SCREEN, 0);
+        loginForm.append(email);
+        loginForm.append(password);
+        loginForm.addCommand(next);
+        loginForm.setCommandListener(this);
+        return loginForm;
         
     }
     
