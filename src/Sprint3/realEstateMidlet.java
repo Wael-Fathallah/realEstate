@@ -40,6 +40,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
     //Global variable
     private Display display;
     private Alert errorAlert;
+    private String runState;
     //Connexion
     HttpConnection hc;
     DataInputStream dis;
@@ -60,7 +61,6 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
     //inscrire Screen
     private TextField   nom;
     private TextField   prenom;
-    private ChoiceGroup ClOrGe;
     private Form        inscrireForm;
     private TextField   numFix;
     private TextField   numMob;
@@ -84,26 +84,46 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
         destroyApp(false);
         notifyDestroyed();
         }
-        if (c == next) {
-            urlX="AUTH/login.php?mail="+email.getString().trim()+"&pass="+password.getString().trim()+"&user=1";
+        if (c == next && d == loginForm) {
+            runState = "Login";
+            int user = 1;
+            if(adminTorF.isSelected(0)){
+                user = 0;
+            }
+            urlX="AUTH/login.php?mail="+email.getString().trim()+"&pass="+password.getString().trim()+"&user="+user;
             Thread th = new Thread(this);
             th.start();
+
+        }
+        if (c == next && d == inscrireForm) {
+            runState = "Inscrire";
+          
+            urlX="AUTH/logup.php?mail="+email.getString().trim()+"&pass="+password.getString().trim()+"&user=";
+            Thread th = new Thread(this);
+            th.start();
+
         }
         if (c == reg1) {
+            
             display.setCurrent(inscrireCSegment());
         }
+        if (c == reg2) {
+            
+            display.setCurrent(inscrireGSegment());
+        }
+        
         
     }
     
     private Form loginSegment() {
         
         email = new TextField("Email :", "", 50, TextField.ANY);
-        password = new TextField("Password :", "", 50, TextField.ANY);
+        password = new TextField("Password :", "", 50, TextField.PASSWORD);
         adminTorF = new ChoiceGroup("", Choice.MULTIPLE);
         adminTorF.append("Login Like Admin", null);
         loginForm = new Form("Login");
-        next= new Command("Next", Command.OK, 0);
-        exit= new Command("Exit", Command.EXIT, 0);
+        next= new Command("Next", Command.EXIT, 0);
+        exit= new Command("Exit", Command.OK, 0);
         reg1= new Command("S'inscrire like Client", Command.SCREEN, 0);
         reg2= new Command("S'inscrire like Gerant", Command.SCREEN, 0);
         
@@ -121,23 +141,44 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
     
     private Form inscrireCSegment() {
         email = new TextField("Email :", "", 50, TextField.ANY);
-        password = new TextField("Password :", "", 50, TextField.ANY);
+        password = new TextField("Password :", "", 50, TextField.PASSWORD);
         nom = new TextField("Nom :", "", 50, TextField.ANY);
         prenom = new TextField("Prenom :", "", 50, TextField.ANY);
         inscrireForm = new Form("Inscrire Client");
-        next= new Command("Next", Command.OK, 0);
-        exit= new Command("Exit", Command.EXIT, 0);
-        reg1= new Command("S'inscrire like Client", Command.SCREEN, 0);
-        reg2= new Command("S'inscrire like Gerant", Command.SCREEN, 0);
-        
+        next= new Command("S'inscrire", Command.EXIT, 0);
+        exit= new Command("Exit", Command.OK, 0);
+
         inscrireForm.append(email);
         inscrireForm.append(password);
         inscrireForm.append(nom);
         inscrireForm.append(prenom);
         inscrireForm.addCommand(next);
         inscrireForm.addCommand(exit);
-        inscrireForm.addCommand(reg1);
-        inscrireForm.addCommand(reg2);
+        inscrireForm.setCommandListener(this);
+        return inscrireForm;
+    }
+    
+    private Form inscrireGSegment() {
+        email = new TextField("Email :", "", 50, TextField.ANY);
+        password = new TextField("Password :", "", 50, TextField.PASSWORD);
+        nom = new TextField("Nom :", "", 50, TextField.ANY);
+        prenom = new TextField("Prenom :", "", 50, TextField.ANY);
+        numMob = new TextField("Numero Mobile :", "", 50, TextField.PHONENUMBER);
+        numFix = new TextField("Numero Fix :", "", 50, TextField.PHONENUMBER);
+        statM = new TextField("Statu Matri :", "", 50, TextField.ANY);
+        inscrireForm = new Form("Inscrire Gerant");
+        next= new Command("S'inscrire", Command.EXIT, 0);
+        exit= new Command("Exit", Command.OK, 0);
+        
+        inscrireForm.append(email);
+        inscrireForm.append(password);
+        inscrireForm.append(nom);
+        inscrireForm.append(prenom);
+        inscrireForm.append(numMob);
+        inscrireForm.append(numFix);
+        inscrireForm.append(statM);
+        inscrireForm.addCommand(next);
+        inscrireForm.addCommand(exit);
         inscrireForm.setCommandListener(this);
         return inscrireForm;
     }
@@ -152,16 +193,29 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
                 }
                 System.out.print(sb.toString().trim());
                 System.out.print(adminTorFIndex);
-                if ("OK".equals(sb.toString().trim())) {
-                    display.setCurrent(f2);
-                }else{
-                    errorAlert = new Alert("Error", sb.toString().trim(), null,AlertType.ERROR);
-                    errorAlert.setTimeout(3000);
-                    display.setCurrent(errorAlert);
+                if("Login".equals(runState)){
+                    if ("OK2".equals(sb.toString().trim())) {
+                        display.setCurrent(f2);
+                    }else if ("OK1".equals(sb.toString().trim())) {
+                        display.setCurrent(f2);
+                    }else if ("OKA".equals(sb.toString().trim())) {
+                        display.setCurrent(f2);
+                    }else{
+                        errorAlert = new Alert("Error", sb.toString().trim(), null,AlertType.ERROR);
+                        errorAlert.setTimeout(3000);
+                        display.setCurrent(errorAlert);
+                    }
                 }
                 sb = new StringBuffer();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
     }
+
+    public Display getDisplay() {
+        return display;
+    }
+    
+
+    
 }
