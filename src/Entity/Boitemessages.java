@@ -22,15 +22,15 @@ package Entity;
  */
 public class Boitemessages {
     
-    private int     id;
+    private String  id;
     private String  nom_expediteur;
     private String  prenom_expediteur;
     private String  nom_destinataire;
     private String  prenom_destinataire;
     private String  contenu;
-    private int     vu;
+    private String vu;
 
-    public Boitemessages(int id, String nom_expediteur, String prenom_expediteur, String nom_destinataire, String prenom_destinataire, String contenu, int vu) {
+    public Boitemessages(String id, String nom_expediteur, String prenom_expediteur, String nom_destinataire, String prenom_destinataire, String contenu, String vu) {
         this.id = id;
         this.nom_expediteur = nom_expediteur;
         this.prenom_expediteur = prenom_expediteur;
@@ -40,15 +40,14 @@ public class Boitemessages {
         this.vu = vu;
     }
 
-
     public Boitemessages() {
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -92,13 +91,14 @@ public class Boitemessages {
         this.contenu = contenu;
     }
 
-    public int getVu() {
+    public String getVu() {
         return vu;
     }
 
-    public void setVu(int vu) {
+    public void setVu(String vu) {
         this.vu = vu;
     }
-
     
+    
+
 }
