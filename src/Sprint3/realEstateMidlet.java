@@ -36,6 +36,7 @@ import javax.microedition.midlet.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import net.mypapit.java.StringTokenizer;
 import org.xml.sax.SAXException;
 
 /**
@@ -47,6 +48,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
     private Alert   errorAlert;
     private Form    XForm;
     private String  runState;
+    private String  myID = "0";
+    private String  myName = "Admin";
     //Connexion
     HttpConnection hc;
     DataInputStream dis;
@@ -80,6 +83,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
     private Command     send;
     
     Form f2 = new Form("Welcome");
+    
     Form f3 = new Form("Erreur");
     
     public void startApp() {
@@ -94,10 +98,17 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
     }
 
     public void commandAction(Command c, Displayable d) {
+        //Exit
         if (c == exit) {
         destroyApp(false);
         notifyDestroyed();
         }
+        //Back
+        if (c == back) {
+            display.setCurrent(wellcomeSegment(myName));
+        }
+        
+        //Login Command
         if (c == next && d == loginForm) {
             runState = "Login";
             int user = 1;
@@ -109,6 +120,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
             th.start();
 
         }
+        //Inscrire Command
         if (c == next && d == inscrireForm) {
             runState = "Inscrire";
           
@@ -125,12 +137,20 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
             
             display.setCurrent(inscrireGSegment());
         }
-        
+        //MailBox Command
         if (c == inbox) {
             
             runState = "Inbox";
           
-            urlX="Boitemessages/getXmlMessage.php";
+            urlX="Boitemessages/getXmlMessage.php?myID="+myID+"&IorS=I";
+            Thread th = new Thread(this);
+            th.start();
+        }
+        if (c == sent) {
+            
+            runState = "Sent";
+          
+            urlX="Boitemessages/getXmlMessage.php?myID="+myID+"&IorS=S";
             Thread th = new Thread(this);
             th.start();
         }
@@ -146,18 +166,19 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
         adminTorF.append("Login Like Admin", null);
         loginForm = new Form("Login");
         next= new Command("Next", Command.EXIT, 0);
-        exit= new Command("Exit", Command.OK, 0);
+        
         reg1= new Command("S'inscrire like Client", Command.SCREEN, 0);
         reg2= new Command("S'inscrire like Gerant", Command.SCREEN, 0);
-        inbox= new Command("Inbox", Command.SCREEN, 0);
+        exit= new Command("Exit", Command.SCREEN, 0);
+        
         loginForm.append(email);
         loginForm.append(password);
         adminTorFIndex = loginForm.append(adminTorF);
         loginForm.addCommand(next);
-        loginForm.addCommand(exit);
+        
         loginForm.addCommand(reg1);
         loginForm.addCommand(reg2);
-        loginForm.addCommand(inbox);
+        loginForm.addCommand(exit);
         loginForm.setCommandListener(this);
         return loginForm;
         
@@ -206,15 +227,16 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
         inscrireForm.setCommandListener(this);
         return inscrireForm;
     }
-    private Form inboxSegment(int id) {
+    private Form wellcomeSegment(String name) {
         
-        XForm = new Form("Inbox");
+        XForm = new Form("Welcome " + name);
         //next= new Command("S'inscrire", Command.EXIT, 0);
         exit= new Command("Exit", Command.OK, 0);
-        
+        inbox= new Command("Inbox", Command.SCREEN, 0);
         XForm.addCommand(exit);
-        inscrireForm.setCommandListener(this);
-        return inscrireForm;
+        XForm.addCommand(inbox);
+        XForm.setCommandListener(this);
+        return XForm;
     }
     public void run() {
         try {
@@ -222,18 +244,27 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
             if("Login".equals(runState)){
                 hc = (HttpConnection) Connector.open(url+urlX);
                 dis = new DataInputStream(hc.openDataInputStream());
+                String tmp = null;
                 while ((ch = dis.read()) != -1) {
                     sb.append((char)ch);
-                    
+                              
                 }
+                    tmp = sb.toString().trim();
+                    StringTokenizer tok;
+                    tok = new StringTokenizer(tmp,"|");
+                    tmp = tok.nextToken();
                 
-                
-                    if ("OK2".equals(sb.toString().trim())) {
-                        display.setCurrent(f2);
-                    }else if ("OK1".equals(sb.toString().trim())) {
-                        display.setCurrent(f2);
-                    }else if ("OKA".equals(sb.toString().trim())) {
-                        display.setCurrent(f2);
+                    if ("OK2".equals(tmp)) {
+                        myID = tok.nextToken();
+                        myName = tok.nextToken();
+                        display.setCurrent(wellcomeSegment(myName));                     
+                    }else if ("OK1".equals(tmp)) {
+                        myID = tok.nextToken();
+                        myName = tok.nextToken();
+                        display.setCurrent(wellcomeSegment(myName));                      
+                    }else if ("OKA".equals(tmp)) {
+                        myID = "0";
+                        display.setCurrent(wellcomeSegment("Admin"));
                     }else{
                         errorAlert = new Alert("Error", sb.toString().trim(), null,AlertType.ERROR);
                         errorAlert.setTimeout(3000);
@@ -242,9 +273,9 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
                 
                 sb = new StringBuffer();
             }
-            if("Inbox".equals(runState)){
+            if("Inbox".equals(runState) || "Sent".equals(runState)){
                 // this will handle our XML
-                lst = new List("Inbox", List.IMPLICIT);
+                
                 BoitemessagesHandler boiteHandler = new BoitemessagesHandler();
                 // get a parser object
                 SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
@@ -254,25 +285,40 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
                 parser.parse(dis, boiteHandler);
                 // display the result
                 boitemessages = boiteHandler.getBoitemessages();
+                if("Inbox".equals(runState)){
+                    lst = new List("Inbox", List.IMPLICIT);
 
-                if (boitemessages.length > 0) {
-                    for (int i = 0; i < boitemessages.length; i++) {
-                        lst.append(boitemessages[i].getNom_destinataire()+" "
-                                +boitemessages[i].getPrenom_destinataire()+" "
-                                +boitemessages[i].getContenu().substring(0, Math.min(boitemessages[i].getContenu().length(), 10))+"...", null);
+                    if (boitemessages.length > 0) {
 
+                        for (int i = 0; i < boitemessages.length; i++) {
+                            lst.append(boitemessages[i].getNom_expediteur()+" "
+                                    +boitemessages[i].getPrenom_expediteur()+" "
+                                    +boitemessages[i].getContenu().substring(0, Math.min(boitemessages[i].getContenu().length(), 10))+"...", null);
+                        }
                     }
+                }else{
+                    lst = new List("Sent", List.IMPLICIT);
+                    
+                    if (boitemessages.length > 0) {
+
+                        for (int i = 0; i < boitemessages.length; i++) {
+                            lst.append(boitemessages[i].getNom_destinataire()+" "
+                                    +boitemessages[i].getPrenom_destinataire()+" "
+                                    +boitemessages[i].getContenu().substring(0, Math.min(boitemessages[i].getContenu().length(), 10))+"...", null);
+                        }
+                    }
+                
                 }
                 
-                back = new Command("Back", Command.EXIT, 0);
-                inbox= new Command("Inbox", Command.OK, 0);
-                send= new Command("Send", Command.OK, 0);
-                sent= new Command("Sent", Command.OK, 0);
-                exit= new Command("Exit", Command.OK, 0);
+                back   =   new Command("Back", Command.EXIT, 0);
+                inbox  =   new Command("Inbox", Command.OK, 0);
+                send   =   new Command("Compose", Command.OK, 0);
+                sent   =   new Command("Sent", Command.OK, 0);
+                exit   =   new Command("Exit", Command.OK, 0);
                 lst.addCommand(back);
-                lst.addCommand(send);
                 lst.addCommand(inbox);
                 lst.addCommand(sent);
+                lst.addCommand(send);
                 lst.addCommand(exit);
                 lst.setCommandListener(this);
                 display.setCurrent(lst);
