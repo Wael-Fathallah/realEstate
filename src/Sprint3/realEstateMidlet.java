@@ -31,6 +31,8 @@ import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.List;
+import javax.microedition.lcdui.StringItem;
+import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
 import javax.microedition.midlet.*;
 import javax.xml.parsers.ParserConfigurationException;
@@ -48,8 +50,14 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
     private Alert   errorAlert;
     private Form    XForm;
     private String  runState;
-    private String  myID = "0";
-    private String  myName = "Admin";
+    private Form    connectForm;
+    private StringItem messageLabel;
+    private String  myID = null;   //have to saved
+    private String  myName = null; //have to saved
+    private String  userName;      //have to saved
+    private String  userPass;      //have to saved
+    private int     userType;      //have to saved
+    private int     CorG;
     //Connexion
     HttpConnection hc;
     DataInputStream dis;
@@ -66,7 +74,6 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
     private Command     exit;
     private Command     reg1;
     private Command     reg2;
-    private int         adminTorFIndex;
     //inscrire Screen
     private TextField   nom;
     private TextField   prenom;
@@ -74,21 +81,24 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
     private TextField   numFix;
     private TextField   numMob;
     private TextField   statM;
+    
     //Inbox Screen
     private Boitemessages[] boitemessages;
     private List        lst;
     private Command     back;
     private Command     inbox;
     private Command     sent;
+    private Command     Compose;
     private Command     send;
+    private TextBox     bodyM;
     
-    Form f2 = new Form("Welcome");
-    
-    Form f3 = new Form("Erreur");
     
     public void startApp() {
         display = Display.getDisplay(this);
-        display.setCurrent(loginSegment());
+        if(myID!=null){
+        display.setCurrent(wellcomeSegment(myName));   
+        }else{
+        display.setCurrent(loginSegment());}
     }
     
     public void pauseApp() {
@@ -111,27 +121,39 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
         //Login Command
         if (c == next && d == loginForm) {
             runState = "Login";
-            int user = 1;
+                userType = 1;
             if(adminTorF.isSelected(0)){
-                user = 0;
+                userType = 0;
             }
-            urlX="AUTH/login.php?mail="+email.getString().trim()+"&pass="+password.getString().trim()+"&user="+user;
+            userName = email.getString().trim();
+            userPass = password.getString().trim();
+            urlX="AUTH/login.php?mail="+userName+"&pass="+userPass+"&user="+userType;
             Thread th = new Thread(this);
             th.start();
+            display.setCurrent(connectingSegment());
 
         }
         //Inscrire Command
         if (c == next && d == inscrireForm) {
             runState = "Inscrire";
-          
-            urlX="AUTH/logup.php?mail="+email.getString().trim()+"&pass="+password.getString().trim()+"&user=";
+            userName = email.getString().trim();
+            userPass = password.getString().trim();
+            myName = nom.getString().trim() + " " + prenom.getString().trim();
+            userType = 1;
+            if(CorG==2){
+                urlX="AUTH/regC.php?mail="+userName+"&pass="+userPass+"&nom="+nom.getString().trim()+"&prenom="+nom.getString().trim()+"&stat=";
+            }else{
+                urlX="AUTH/regC.php?mail="+userName+"&pass="+userPass+"&nom="+nom.getString().trim()+"&prenom="+nom.getString().trim()+"&stat=";
+            }
             Thread th = new Thread(this);
             th.start();
+            display.setCurrent(connectingSegment());
 
         }
         if (c == reg1) {
             
             display.setCurrent(inscrireCSegment());
+            
         }
         if (c == reg2) {
             
@@ -142,20 +164,33 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
             
             runState = "Inbox";
           
-            urlX="Boitemessages/getXmlMessage.php?myID="+myID+"&IorS=I";
+            urlX="Boitemessages/getXmlMessage.php?myID="+myID+"&IorS=I&mail="+userName+"&pass="+userPass+"&user="+userType;
             Thread th = new Thread(this);
             th.start();
+            display.setCurrent(connectingSegment());
         }
         if (c == sent) {
             
             runState = "Sent";
-          
-            urlX="Boitemessages/getXmlMessage.php?myID="+myID+"&IorS=S";
+            
+            urlX="Boitemessages/getXmlMessage.php?myID="+myID+"&IorS=S&mail="+userName+"&pass="+userPass+"&user="+userType;
             Thread th = new Thread(this);
             th.start();
+            display.setCurrent(connectingSegment());
         }
-        
-        
+        if (c == Compose) {
+            
+            display.setCurrent(ComposeSegment());
+        }
+        if (c == send) {
+            
+            runState = "Send";
+            
+            urlX="Boitemessages/sendMessage.php?myID="+myID+"&mail="+userName+"&pass="+userPass+"&user="+userType+"&body="+bodyM.getString().trim()+"&sendMail="+"wael.fathallah@esprit.tn";
+            Thread th = new Thread(this);
+            th.start();
+            display.setCurrent(connectingSegment());
+        }
     }
     
     private Form loginSegment() {
@@ -173,7 +208,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
         
         loginForm.append(email);
         loginForm.append(password);
-        adminTorFIndex = loginForm.append(adminTorF);
+        loginForm.append(adminTorF);
         loginForm.addCommand(next);
         
         loginForm.addCommand(reg1);
@@ -185,6 +220,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
     }
     
     private Form inscrireCSegment() {
+        CorG = 2;
         email = new TextField("Email :", "", 50, TextField.ANY);
         password = new TextField("Password :", "", 50, TextField.PASSWORD);
         nom = new TextField("Nom :", "", 50, TextField.ANY);
@@ -204,6 +240,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
     }
     
     private Form inscrireGSegment() {
+        CorG = 1;
         email = new TextField("Email :", "", 50, TextField.ANY);
         password = new TextField("Password :", "", 50, TextField.PASSWORD);
         nom = new TextField("Nom :", "", 50, TextField.ANY);
@@ -238,11 +275,36 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
         XForm.setCommandListener(this);
         return XForm;
     }
+    private TextBox ComposeSegment() {
+        
+        exit= new Command("Exit", Command.OK, 0);
+        send= new Command("Send", Command.SCREEN, 0);
+        back   =   new Command("Back", Command.EXIT, 0);
+        inbox  =   new Command("Inbox", Command.OK, 0);
+        sent   =   new Command("Sent", Command.OK, 0);
+        bodyM = new TextBox("Compose a massege ", "", 200, TextField.ANY);
+        
+        bodyM.addCommand(send);
+        bodyM.addCommand(inbox);
+        bodyM.addCommand(sent);
+        bodyM.addCommand(back);
+        bodyM.addCommand(exit);
+        bodyM.setCommandListener(this);
+        return bodyM;
+    }
+    private Form connectingSegment() {
+        connectForm = new Form("Connecting");
+        messageLabel = new StringItem(null, "Connecting...\nPlease wait.");
+        connectForm.append(messageLabel);
+        return connectForm;
+        
+    }
     public void run() {
         try {
             
-            if("Login".equals(runState)){
-                hc = (HttpConnection) Connector.open(url+urlX);
+            if("Login".equals(runState) || "Send".equals(runState) || "Inscrire".equals(runState)){
+                
+                hc = (HttpConnection) Connector.open(url+replace(urlX, " ", "+"));
                 dis = new DataInputStream(hc.openDataInputStream());
                 String tmp = null;
                 while ((ch = dis.read()) != -1) {
@@ -253,22 +315,59 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
                     StringTokenizer tok;
                     tok = new StringTokenizer(tmp,"|");
                     tmp = tok.nextToken();
-                
+                    if("Login".equals(runState)){
                     if ("OK2".equals(tmp)) {
+                        CorG = 2;
                         myID = tok.nextToken();
                         myName = tok.nextToken();
                         display.setCurrent(wellcomeSegment(myName));                     
                     }else if ("OK1".equals(tmp)) {
+                        CorG = 1;
                         myID = tok.nextToken();
                         myName = tok.nextToken();
                         display.setCurrent(wellcomeSegment(myName));                      
                     }else if ("OKA".equals(tmp)) {
+                        CorG = 0;
                         myID = "0";
-                        display.setCurrent(wellcomeSegment("Admin"));
+                        myName = "Admin";
+                        display.setCurrent(wellcomeSegment(myName));          
                     }else{
+                        display.setCurrent(loginSegment());
                         errorAlert = new Alert("Error", sb.toString().trim(), null,AlertType.ERROR);
                         errorAlert.setTimeout(3000);
                         display.setCurrent(errorAlert);
+                    }
+                    }else if("Send".equals(runState)){
+                        if ("OKS".equals(tmp)) {
+                            display.setCurrent(wellcomeSegment(myName));
+                           errorAlert = new Alert("Done", "Message send with success", null,AlertType.INFO);
+                            errorAlert.setTimeout(3000);
+                            display.setCurrent(errorAlert);
+                            
+                        }else{
+                            errorAlert = new Alert("Error", sb.toString().trim(), null,AlertType.ERROR);
+                            errorAlert.setTimeout(3000);
+                            display.setCurrent(errorAlert);
+                        }
+                    }else if("Inscrire".equals(runState)){
+                        if ("OKR".equals(tmp)) {
+                            tok = new StringTokenizer(sb.toString().trim(),"|");
+                            tmp = tok.nextToken();
+                            tmp = tok.nextToken();
+                            display.setCurrent(wellcomeSegment(myName));
+                            myID =tmp;
+                            errorAlert = new Alert("Done", "Registration done with success", null,AlertType.INFO);
+                            errorAlert.setTimeout(3000);
+                            display.setCurrent(errorAlert);
+                            
+                        }else{
+                           
+                            display.setCurrent(inscrireForm);
+                            
+                            errorAlert = new Alert("Error", sb.toString().trim(), null,AlertType.ERROR);
+                            errorAlert.setTimeout(3000);
+                            display.setCurrent(errorAlert);
+                        }
                     }
                 
                 sb = new StringBuffer();
@@ -280,7 +379,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
                 // get a parser object
                 SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
                 // get an InputStream from somewhere (could be HttpConnection, for example)
-                hc = (HttpConnection) Connector.open(url+urlX);
+                hc = (HttpConnection) Connector.open(url+replace(urlX, " ", "+"));
                 dis = new DataInputStream(hc.openDataInputStream());
                 parser.parse(dis, boiteHandler);
                 // display the result
@@ -312,13 +411,13 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
                 
                 back   =   new Command("Back", Command.EXIT, 0);
                 inbox  =   new Command("Inbox", Command.OK, 0);
-                send   =   new Command("Compose", Command.OK, 0);
+                Compose   =   new Command("Compose", Command.OK, 0);
                 sent   =   new Command("Sent", Command.OK, 0);
                 exit   =   new Command("Exit", Command.OK, 0);
                 lst.addCommand(back);
                 lst.addCommand(inbox);
                 lst.addCommand(sent);
-                lst.addCommand(send);
+                lst.addCommand(Compose);
                 lst.addCommand(exit);
                 lst.setCommandListener(this);
                 display.setCurrent(lst);
@@ -332,8 +431,20 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
         }
     }
 
-    public Display getDisplay() {
-        return display;
+    private String replace( String str, String pattern, String replace ) 
+    {
+        int s = 0;
+        int e = 0;
+        StringBuffer result = new StringBuffer();
+
+        while ( (e = str.indexOf( pattern, s ) ) >= 0 ) 
+        {
+            result.append(str.substring( s, e ) );
+            result.append( replace );
+            s = e+pattern.length();
+        }
+        result.append( str.substring( s ) );
+        return result.toString();
     }
     
 
