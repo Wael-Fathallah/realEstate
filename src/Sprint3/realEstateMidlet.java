@@ -141,9 +141,9 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
             myName = nom.getString().trim() + " " + prenom.getString().trim();
             userType = 1;
             if(CorG==2){
-                urlX="AUTH/regC.php?mail="+userName+"&pass="+userPass+"&nom="+nom.getString().trim()+"&prenom="+nom.getString().trim()+"&stat=";
+                urlX="AUTH/regC.php?mail="+userName+"&pass="+userPass+"&nom="+nom.getString().trim()+"&prenom="+prenom.getString().trim()+"&stat=";
             }else{
-                urlX="AUTH/regC.php?mail="+userName+"&pass="+userPass+"&nom="+nom.getString().trim()+"&prenom="+nom.getString().trim()+"&stat=";
+                urlX="AUTH/regC.php?mail="+userName+"&pass="+userPass+"&nom="+nom.getString().trim()+"&prenom="+prenom.getString().trim()+"&stat=";
             }
             Thread th = new Thread(this);
             th.start();
@@ -299,6 +299,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, Runnabl
         return connectForm;
         
     }
+
     public void run() {
         try {
             
