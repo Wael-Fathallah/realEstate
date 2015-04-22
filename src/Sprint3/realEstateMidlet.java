@@ -45,7 +45,7 @@ import javax.microedition.midlet.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import net.mypapit.java.StringTokenizer;
+import More.StringTokenizer;
 import org.xml.sax.SAXException;
 
 /**
