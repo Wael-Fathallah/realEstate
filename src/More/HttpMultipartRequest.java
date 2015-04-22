@@ -20,10 +20,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
-
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
-
+/**
+ *
+ * @author FATHALLAH Wael
+ */
 public class HttpMultipartRequest
 {
 	static final String BOUNDARY = "----------V2ymHFg03ehbqgZCaKO6jy";

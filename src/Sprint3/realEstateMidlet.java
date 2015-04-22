@@ -18,6 +18,7 @@ package Sprint3;
 import Entity.Boitemessages;
 import Handler.BoitemessagesHandler;
 import More.HttpMultipartRequest;
+import More.PieChartCanvas;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,13 +47,16 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import More.StringTokenizer;
+import javax.microedition.lcdui.Item;
+import javax.microedition.lcdui.ItemCommandListener;
 import org.xml.sax.SAXException;
 
 /**
  * @author Stack overFlow TEAM
  */
-public class realEstateMidlet extends MIDlet implements CommandListener  {
-    //Global variable
+public class realEstateMidlet extends MIDlet implements CommandListener, ItemCommandListener  {
+
+    // <editor-fold defaultstate="collapsed" desc=" Global variable">
     private Display display;
     private Alert   errorAlert;
     private Form    XForm;
@@ -73,7 +77,9 @@ public class realEstateMidlet extends MIDlet implements CommandListener  {
     String urlX = "";
     StringBuffer sb = new StringBuffer();
     int ch;
-    //Login Screen 
+    // </editor-fold> 
+    
+    // <editor-fold defaultstate="collapsed" desc=" Login Screen ">
     private TextField   email;
     private TextField   password;
     private ChoiceGroup adminTorF;
@@ -82,15 +88,20 @@ public class realEstateMidlet extends MIDlet implements CommandListener  {
     private Command     exit;
     private Command     reg1;
     private Command     reg2;
-    //inscrire Screen
+    // </editor-fold> 
+
+    // <editor-fold defaultstate="collapsed" desc=" inscrire Screen">
     private TextField   nom;
     private TextField   prenom;
     private Form        inscrireForm;
     private TextField   numFix;
     private TextField   numMob;
     private TextField   statM;
+    private Command     uploadC;
+    private String      imageName;
+    // </editor-fold>
     
-    //Inbox Screen
+    // <editor-fold defaultstate="collapsed" desc=" Inbox Screen">
     private Boitemessages[] boitemessages;
     private List        lst;
     private Command     back;
@@ -99,6 +110,12 @@ public class realEstateMidlet extends MIDlet implements CommandListener  {
     private Command     Compose;
     private Command     send;
     private TextBox     bodyM;
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" Inbox Screen">
+    private Displayable statDis;
+    private Command     statCom;
+    // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Am not here so leave me alone">
     public realEstateMidlet() {
@@ -118,22 +135,13 @@ public class realEstateMidlet extends MIDlet implements CommandListener  {
     }
     
     public void startApp() {
+        
         display = Display.getDisplay(this);
         if(myID!=null){
         display.setCurrent(wellcomeSegment(myName));   
         }else{
         display.setCurrent(loginSegment());}
-//        try {
-//           showCurrDir();
-//        } catch (SecurityException e) {
-//            Alert alert =
-//                new Alert("Error", "You are not authorized to access the restricted API", null,
-//                    AlertType.ERROR);
-//            alert.setTimeout(Alert.FOREVER);
-//            Display.getDisplay(this).setCurrent(alert);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+
     }
     
     public void pauseApp() {
@@ -147,19 +155,23 @@ public class realEstateMidlet extends MIDlet implements CommandListener  {
         
         // <editor-fold defaultstate="collapsed" desc=" Exit & Back to homeScrean Command ">
         if (c == exit) {
-        destroyApp(false);
-        notifyDestroyed();
+            destroyApp(false);
+            notifyDestroyed();
         }
         //Back
-        if (c == back) {
+        if (c == back && d != inscrireForm) {
             display.setCurrent(wellcomeSegment(myName));
+        }
+        //Back
+        if (c == back && d == inscrireForm) {
+            display.setCurrent(loginSegment());
         }
         // </editor-fold> 
         
         // <editor-fold defaultstate="collapsed" desc=" Login Command ">
         if (c == next && d == loginForm) {
             runState = "Login";
-                userType = 1;
+            userType = 1;
             if(adminTorF.isSelected(0)){
                 userType = 0;
             }
@@ -168,39 +180,39 @@ public class realEstateMidlet extends MIDlet implements CommandListener  {
             urlX="AUTH/login.php?mail="+userName+"&pass="+userPass+"&user="+userType;
             display.setCurrent(connectingSegment());
             new Thread(new Runnable() {
-                    public void run() {
-                            
-                        if(setData()){
-                            String tmp = null;
-                            tmp = sb.toString().trim();
-                            StringTokenizer tok;
-                            tok = new StringTokenizer(tmp,"|");
-                            tmp = tok.nextToken();
-                            if ("OK2".equals(tmp)) {
-                                CorG = 2;
-                                myID = tok.nextToken();
-                                myName = tok.nextToken();
-                                display.setCurrent(wellcomeSegment(myName));                     
-                            }else if ("OK1".equals(tmp)) {
-                                CorG = 1;
-                                myID = tok.nextToken();
-                                myName = tok.nextToken();
-                                display.setCurrent(wellcomeSegment(myName));                      
-                            }else if ("OKA".equals(tmp)) {
-                                CorG = 0;
-                                myID = "0";
-                                myName = "Admin";
-                                display.setCurrent(wellcomeSegment(myName));          
-                            }else{
-                                display.setCurrent(loginSegment());
-                                errorAlert = new Alert("Error", sb.toString().trim(), null,AlertType.ERROR);
-                                errorAlert.setTimeout(3000);
-                                display.setCurrent(errorAlert);
-                            }
-                        }                 
+                public void run() {
+                    
+                    if(setData()){
+                        String tmp = null;
+                        tmp = sb.toString().trim();
+                        StringTokenizer tok;
+                        tok = new StringTokenizer(tmp,"|");
+                        tmp = tok.nextToken();
+                        if ("OK2".equals(tmp)) {
+                            CorG = 2;
+                            myID = tok.nextToken();
+                            myName = tok.nextToken();
+                            display.setCurrent(wellcomeSegment(myName));
+                        }else if ("OK1".equals(tmp)) {
+                            CorG = 1;
+                            myID = tok.nextToken();
+                            myName = tok.nextToken();
+                            display.setCurrent(wellcomeSegment(myName));
+                        }else if ("OKA".equals(tmp)) {
+                            CorG = 0;
+                            myID = "0";
+                            myName = "Admin";
+                            display.setCurrent(wellcomeSegment(myName));
+                        }else{
+                            display.setCurrent(loginSegment());
+                            errorAlert = new Alert("Error", sb.toString().trim(), null,AlertType.ERROR);
+                            errorAlert.setTimeout(3000);
+                            display.setCurrent(errorAlert);
+                        }
                     }
-                }).start();
-
+                }
+            }).start();
+            
         }
         // </editor-fold> 
         
@@ -212,42 +224,42 @@ public class realEstateMidlet extends MIDlet implements CommandListener  {
             myName = nom.getString().trim() + " " + prenom.getString().trim();
             userType = 1;
             if(CorG==2){
-                urlX="AUTH/regC.php?mail="+userName+"&pass="+userPass+"&nom="+nom.getString().trim()+"&prenom="+prenom.getString().trim()+"&stat=";
+                urlX="AUTH/regC.php?mail="+userName+"&pass="+userPass+"&nom="+nom.getString().trim()+"&prenom="+prenom.getString().trim()+"&stat="+"&imgurl="+imageName;
             }else{
-                urlX="AUTH/regC.php?mail="+userName+"&pass="+userPass+"&nom="+nom.getString().trim()+"&prenom="+prenom.getString().trim()+"&stat=";
+                urlX="AUTH/regC.php?mail="+userName+"&pass="+userPass+"&nom="+nom.getString().trim()+"&prenom="+prenom.getString().trim()+"&stat="+"&imgurl="+imageName;
             }
             display.setCurrent(connectingSegment());
             new Thread(new Runnable() {
-                    public void run() {
-                        
-                            
-                        if(setData()){
-                            String tmp = null;
-                            tmp = sb.toString().trim();
-                            StringTokenizer tok;
-                            tok = new StringTokenizer(tmp,"|");
+                public void run() {
+                    
+                    
+                    if(setData()){
+                        String tmp = null;
+                        tmp = sb.toString().trim();
+                        StringTokenizer tok;
+                        tok = new StringTokenizer(tmp,"|");
+                        tmp = tok.nextToken();
+                        if ("OKR".equals(tmp)) {
+                            tok = new StringTokenizer(sb.toString().trim(),"|");
                             tmp = tok.nextToken();
-                            if ("OKR".equals(tmp)) {
-                                tok = new StringTokenizer(sb.toString().trim(),"|");
-                                tmp = tok.nextToken();
-                                tmp = tok.nextToken();
-                                display.setCurrent(wellcomeSegment(myName));
-                                myID =tmp;
-                                errorAlert = new Alert("Done", "Registration done with success", null,AlertType.INFO);
-                                errorAlert.setTimeout(3000);
-                                display.setCurrent(errorAlert);
+                            tmp = tok.nextToken();
+                            display.setCurrent(wellcomeSegment(myName));
+                            myID =tmp;
+                            errorAlert = new Alert("Done", "Registration done with success", null,AlertType.INFO);
+                            errorAlert.setTimeout(3000);
+                            display.setCurrent(errorAlert);
                             
-                            }else{
-
-                                display.setCurrent(inscrireForm);
-
-                                errorAlert = new Alert("Error", sb.toString().trim(), null,AlertType.ERROR);
-                                errorAlert.setTimeout(3000);
-                                display.setCurrent(errorAlert);
-                            }
-                        }                 
+                        }else{
+                            
+                            display.setCurrent(inscrireForm);
+                            
+                            errorAlert = new Alert("Error", sb.toString().trim(), null,AlertType.ERROR);
+                            errorAlert.setTimeout(3000);
+                            display.setCurrent(errorAlert);
+                        }
                     }
-                }).start();
+                }
+            }).start();
         }
         if (c == reg1) {
             
@@ -345,6 +357,32 @@ public class realEstateMidlet extends MIDlet implements CommandListener  {
                 }).start();
         }
         // </editor-fold> 
+        
+        // <editor-fold defaultstate="collapsed" desc=" Stat Command ">
+        if (c == statCom) {
+            int[] data = { 100, 100, 100, 30, 30 };
+            display.setCurrent(statSegment(data));
+        }
+        // </editor-fold> 
+    }
+    public void commandAction(Command c, Item item) {
+        
+        // <editor-fold defaultstate="collapsed" desc=" open Files View & upload Form ">
+        if (c == uploadC) {
+            try {
+                showCurrDir();
+            } catch (SecurityException e) {
+                Alert alert =
+                        new Alert("Error", "You are not authorized to access the restricted API", null,
+                                AlertType.ERROR);
+                alert.setTimeout(Alert.FOREVER);
+                Display.getDisplay(this).setCurrent(alert);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        // </editor-fold> 
+        
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Segments Block ">
@@ -387,11 +425,15 @@ public class realEstateMidlet extends MIDlet implements CommandListener  {
         inscrireForm = new Form("Inscrire Client");
         next= new Command("S'inscrire", Command.EXIT, 0);
         exit= new Command("Exit", Command.OK, 0);
-
+        uploadC= new Command("Uploud image", Command.ITEM, 0);
+        StringItem item = new StringItem("", "Uploud image ", Item.BUTTON);
+        item.setDefaultCommand(uploadC);
+        item.setItemCommandListener(this);
         inscrireForm.append(email);
         inscrireForm.append(password);
         inscrireForm.append(nom);
         inscrireForm.append(prenom);
+        inscrireForm.append(item);
         inscrireForm.addCommand(next);
         inscrireForm.addCommand(exit);
         inscrireForm.setCommandListener(this);
@@ -434,10 +476,24 @@ public class realEstateMidlet extends MIDlet implements CommandListener  {
         //next= new Command("S'inscrire", Command.EXIT, 0);
         exit= new Command("Exit", Command.OK, 0);
         inbox= new Command("Inbox", Command.SCREEN, 0);
+        statCom= new Command("Stat", Command.SCREEN, 0);
         XForm.addCommand(exit);
         XForm.addCommand(inbox);
+        XForm.addCommand(statCom);
         XForm.setCommandListener(this);
         return XForm;
+    }
+    // </editor-fold> 
+    
+    // <editor-fold defaultstate="collapsed" desc=" statSegment ">
+    private Displayable statSegment(int[] data) {
+        
+        statDis = new PieChartCanvas(data);
+        back = new Command("Back", Command.EXIT, 0);
+
+        statDis.addCommand(back);
+        statDis.setCommandListener(this);
+        return statDis;
     }
     // </editor-fold> 
     
@@ -479,30 +535,30 @@ public class realEstateMidlet extends MIDlet implements CommandListener  {
 
     private static final String[] attrList = { "Read", "Write", "Hidden" };
     private static final String[] typeList = { "Regular File", "Directory" };
-
-
+    
+    
     /* special string denotes upper directory */
     private static final String UP_DIRECTORY = "..";
-
+    
     /* special string that denotes upper directory accessible by this browser.
-     * this virtual directory contains all roots.
-     */
+    * this virtual directory contains all roots.
+    */
     private static final String MEGA_ROOT = "/";
-
+    
     /* separator string as defined by FC specification */
     private static final String SEP_STR = "/";
-
+    
     /* separator character as defined by FC specification */
     private static final char SEP = '/';
     private String currDirName;
-   private Command view = new Command("View", Command.ITEM, 1);
-
+    private Command view = new Command("View", Command.ITEM, 1);
+    
     private Image dirIcon;
     private Image fileIcon;
     private Image[] iconList;
     
-        
-  
+    
+    
     /**
      * Show file list in the current directory .
      */
@@ -511,9 +567,9 @@ public class realEstateMidlet extends MIDlet implements CommandListener  {
         FileConnection currDir = null;
         List browser;
         
-
         
-
+        
+        
         iconList = new Image[] { fileIcon, dirIcon };
         try {
             if (MEGA_ROOT.equals(currDirName)) {
@@ -526,10 +582,10 @@ public class realEstateMidlet extends MIDlet implements CommandListener  {
                 // not root - draw UP_DIRECTORY
                 browser.append(UP_DIRECTORY, dirIcon);
             }
-
+            
             while (e.hasMoreElements()) {
                 String fileName = (String)e.nextElement();
-
+                
                 if (fileName.charAt(fileName.length() - 1) == SEP) {
                     // This is directory
                     browser.append(fileName, dirIcon);
@@ -538,40 +594,40 @@ public class realEstateMidlet extends MIDlet implements CommandListener  {
                     browser.append(fileName, fileIcon);
                 }
             }
-
+            
             browser.setSelectCommand(view);
             //browser.addCommand(back);
             
-
             
-
+            
+            
             browser.setCommandListener(this);
-
+            
             if (currDir != null) {
                 currDir.close();
             }
-
+            
             Display.getDisplay(this).setCurrent(browser);
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
     }
-
+    
     protected void traverseDirectory(String fileName) {
         /* In case of directory just change the current directory
-         * and show it
-         */
+        * and show it
+        */
         if (currDirName.equals(MEGA_ROOT)) {
             if (fileName.equals(UP_DIRECTORY)) {
                 // can not go up from MEGA_ROOT
                 return;
             }
-
+            
             currDirName = fileName;
         } else if (fileName.equals(UP_DIRECTORY)) {
             // Go up one directory
             int i = currDirName.lastIndexOf(SEP, currDirName.length() - 2);
-
+            
             if (i != -1) {
                 currDirName = currDirName.substring(0, i + 1);
             } else {
@@ -580,56 +636,57 @@ public class realEstateMidlet extends MIDlet implements CommandListener  {
         } else {
             currDirName = currDirName + fileName;
         }
-
+        
         showCurrDir();
     }
-
+    
     void showFile(String fileName) {
         try {
             FileConnection fc =
-                (FileConnection)Connector.open("file://localhost/" + currDirName + fileName);
-
+                    (FileConnection)Connector.open("file://localhost/" + currDirName + fileName);
+            
             if (!fc.exists()) {
                 throw new IOException("File does not exists");
             }
-
+            
             InputStream fis = fc.openInputStream();
             
             // convert the inpustream to a byte array
             byte[] b = new byte[fis.available()];
             
             int length = fis.read(b, 0, fis.available());
-
+            
             
             
             fis.close();
             fc.close();
             
-
+            
             Hashtable params = new Hashtable();
             params.put("custom_param", "param_value");
             
-
+            
             HttpMultipartRequest req = new HttpMultipartRequest(
                     "http://localhost/image/upM.php",
                     params,
                     "userfile", fileName, "image/jpg", b, length
             );
-
-
+            imageName = fileName;
+            
             if (req.send()) {
                 Alert alert =
-                new Alert("Done!",
-                    "File uploud with seccess ", null, AlertType.INFO);
-            alert.setTimeout(Alert.FOREVER);
-            Display.getDisplay(this).setCurrent(alert);
+                        new Alert("Done!",
+                                "File uploud with seccess ", null, AlertType.INFO);
+                alert.setTimeout(3000);
+                Display.getDisplay(this).setCurrent(inscrireForm);
+                Display.getDisplay(this).setCurrent(alert);
             }
         } catch (Exception e) {
             Alert alert =
-                new Alert("Error!",
-                    "Can not access file " + fileName + " in directory " + currDirName +
-                    "\nException: " + e.getMessage(), null, AlertType.ERROR);
-            alert.setTimeout(Alert.FOREVER);
+                    new Alert("Error!",
+                            "Can not access file " + fileName + " in directory " + currDirName +
+                                    "\nException: " + e.getMessage(), null, AlertType.ERROR);
+            alert.setTimeout(3000);
             Display.getDisplay(this).setCurrent(alert);
         }
     }
@@ -654,13 +711,13 @@ public class realEstateMidlet extends MIDlet implements CommandListener  {
     // </editor-fold>
  
     // <editor-fold defaultstate="collapsed" desc=" replace ">
-    private String replace( String str, String pattern, String replace ) 
+    private String replace( String str, String pattern, String replace )
     {
         int s = 0;
         int e = 0;
         StringBuffer result = new StringBuffer();
-
-        while ( (e = str.indexOf( pattern, s ) ) >= 0 ) 
+        
+        while ( (e = str.indexOf( pattern, s ) ) >= 0 )
         {
             result.append(str.substring( s, e ) );
             result.append( replace );
