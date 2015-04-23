@@ -42,8 +42,8 @@ public class BoitemessagesHandler extends DefaultHandler {
         boitemessagess = new Vector();
     }
 
-    public Utilisateur[] getPersonne() {
-        Utilisateur[] boitemessagesss = new Utilisateur[boitemessagess.size()];
+    public Boitemessages[] getBoitemessages() {
+        Boitemessages[] boitemessagesss = new Boitemessages[boitemessagess.size()];
         boitemessagess.copyInto(boitemessagesss);
         return boitemessagesss;
     }
@@ -53,32 +53,32 @@ public class BoitemessagesHandler extends DefaultHandler {
     // XML EVENT PROCESSING METHODS (DEFINED BY DefaultHandler)
     // startElement is the opening part of the tag "<tagname...>"
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-        if (qName.equals("utulisateur")) {
+        if (qName.equals("Messages")) {
             currentBoitemessage = new Boitemessages();
             
-            currentBoitemessage.setId(Integer.parseInt(attributes.getValue("id")));
-            currentBoitemessage.setNom_expediteur(attributes.getValue("mail"));
-            currentBoitemessage.setPrenom_expediteur(attributes.getValue("password"));
-            currentBoitemessage.setNom_destinataire(attributes.getValue("nom"));
-            currentBoitemessage.setPrenom_destinataire(attributes.getValue("prenom"));
-            currentBoitemessage.setContenu(attributes.getValue("numMobile"));
-            currentBoitemessage.setVu(Integer.parseInt(attributes.getValue("numFix")));
+           currentBoitemessage.setId(attributes.getValue("m0"));
+            currentBoitemessage.setNom_expediteur(attributes.getValue("m1"));
+            currentBoitemessage.setPrenom_expediteur(attributes.getValue("m2"));
+            currentBoitemessage.setNom_destinataire(attributes.getValue("m3"));
+            currentBoitemessage.setPrenom_destinataire(attributes.getValue("m4"));
+            currentBoitemessage.setContenu(attributes.getValue("m5"));
+            currentBoitemessage.setVu(attributes.getValue("m6"));
             
             
             
-        } else if (qName.equals("id")) {
+        } else if (qName.equals("m0")) {
             idTag = "open";
-        } else if (qName.equals("mail")) {
+        } else if (qName.equals("m1")) {
             nomExTag = "open";
-        } else if (qName.equals("password")) {
+        } else if (qName.equals("m2")) {
             preExTag = "open";
-        } else if (qName.equals("nom")) {
+        } else if (qName.equals("m3")) {
             nomDeTag = "open";
-        } else if (qName.equals("prenom")) {
+        } else if (qName.equals("m4")) {
             preDeTag = "open";
-        } else if (qName.equals("numMobile")) {
+        } else if (qName.equals("m5")) {
             contenuTag = "open";
-        } else if (qName.equals("numFix")) {
+        } else if (qName.equals("m6")) {
             vuTag = "open";
         }
        
@@ -86,30 +86,24 @@ public class BoitemessagesHandler extends DefaultHandler {
 
     public void endElement(String uri, String localName, String qName) throws SAXException {
 
-        if (qName.equals("person")) {
+        if (qName.equals("Messages")) {
             // we are no longer processing a <reg.../> tag
             boitemessagess.addElement(currentBoitemessage);
             currentBoitemessage = null;
-        } else if (qName.equals("id")) {
+        } else if (qName.equals("m0")) {
             idTag = "close";
-        } else if (qName.equals("mail")) {
-            mailTag = "close";
-        } else if (qName.equals("password")) {
-            passTag = "close";
-        } else if (qName.equals("nom")) {
-            nomTag = "close";
-        } else if (qName.equals("prenom")) {
-            prenTag = "close";
-        } else if (qName.equals("numMobile")) {
-            numMTag = "close";
-        } else if (qName.equals("numFix")) {
-            numFTag = "close";
-        } else if (qName.equals("status_matrimonial")) {
-            statMTag = "close";
-        } else if (qName.equals("role")) {
-            rolTag = "close";
-        } else if (qName.equals("URLp")) {
-            URLpTag = "close";
+        } else if (qName.equals("m1")) {
+            nomExTag = "close";
+        } else if (qName.equals("m2")) {
+            preExTag = "close";
+        } else if (qName.equals("m3")) {
+            nomDeTag = "close";
+        } else if (qName.equals("m4")) {
+            preDeTag = "close";
+        } else if (qName.equals("m5")) {
+            contenuTag = "close";
+        } else if (qName.equals("m6")) {
+            vuTag = "close";
         }
     }
     // "characters" are the text between tags
@@ -119,34 +113,25 @@ public class BoitemessagesHandler extends DefaultHandler {
         if (currentBoitemessage != null) {
             // don't forget to trim excess spaces from the ends of the string
             if (idTag.equals("open")) {
-                currentBoitemessage.setId(Integer.parseInt(new String(ch, start, length).trim()));
+                currentBoitemessage.setId(new String(ch, start, length).trim());
             } else
-                if (mailTag.equals("open")) {
-                currentBoitemessage.setMail(new String(ch, start, length).trim());
+                if (nomExTag.equals("open")) {
+                currentBoitemessage.setNom_expediteur(new String(ch, start, length).trim());
             } else
-                    if (passTag.equals("open")) {
-                currentBoitemessage.setPassword(new String(ch, start, length).trim());
+                    if (preExTag.equals("open")) {
+                currentBoitemessage.setPrenom_expediteur(new String(ch, start, length).trim());
             } else
-                if (nomTag.equals("open")) {
-                currentBoitemessage.setNom(new String(ch, start, length).trim());
+                if (nomDeTag.equals("open")) {
+                currentBoitemessage.setNom_destinataire(new String(ch, start, length).trim());
             } else
-                    if (prenTag.equals("open")) {
-                currentBoitemessage.setPrenom(new String(ch, start, length).trim());
+                    if (preDeTag.equals("open")) {
+                currentBoitemessage.setPrenom_destinataire(new String(ch, start, length).trim());
             } else
-                if (numMTag.equals("open")) {
-                currentBoitemessage.setNumMobile(Integer.parseInt(new String(ch, start, length).trim()));
+                if (contenuTag.equals("open")) {
+                currentBoitemessage.setContenu(new String(ch, start, length).trim());
             } else
-                    if (numFTag.equals("open")) {
-                currentBoitemessage.setNumFix(Integer.parseInt(new String(ch, start, length).trim()));
-            } else
-                if (statMTag.equals("open")) {
-                currentBoitemessage.setStatMAtri(new String(ch, start, length).trim());
-            } else
-                    if (rolTag.equals("open")) {
-                currentBoitemessage.setRole(Integer.parseInt(new String(ch, start, length).trim()));
-            } else
-                    if (URLpTag.equals("open")) {
-                currentBoitemessage.setURLp(new String(ch, start, length).trim());
+                    if (vuTag.equals("open")) {
+                currentBoitemessage.setVu(new String(ch, start, length).trim());
             }
         }
     }

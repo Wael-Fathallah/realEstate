@@ -22,18 +22,18 @@ package Entity;
  */
 public class Utilisateur {
     
-    private int     id;
+    private String    id;
     private String  mail;
     private String  password;
     private String  nom;
     private String  prenom;
-    private int     numMobile;
-    private int     numFix;
+    private String    numMobile;
+    private String     numFix;
     private String  statMAtri;
-    private int     role;    
+    private String     role;    
     private String  URLp;
 
-    public Utilisateur(int id, String mail, String password, String nom, String prenom, int numMobile, int numFix, String statMAtri, int role, String URLp) {
+    public Utilisateur(String id, String mail, String password, String nom, String prenom, String numMobile, String numFix, String statMAtri, String role, String URLp) {
         this.id = id;
         this.mail = mail;
         this.password = password;
@@ -49,11 +49,11 @@ public class Utilisateur {
     public Utilisateur() {
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -89,19 +89,19 @@ public class Utilisateur {
         this.prenom = prenom;
     }
 
-    public int getNumMobile() {
+    public String getNumMobile() {
         return numMobile;
     }
 
-    public void setNumMobile(int numMobile) {
+    public void setNumMobile(String numMobile) {
         this.numMobile = numMobile;
     }
 
-    public int getNumFix() {
+    public String getNumFix() {
         return numFix;
     }
 
-    public void setNumFix(int numFix) {
+    public void setNumFix(String numFix) {
         this.numFix = numFix;
     }
 
@@ -113,11 +113,11 @@ public class Utilisateur {
         this.statMAtri = statMAtri;
     }
 
-    public int getRole() {
+    public String getRole() {
         return role;
     }
 
-    public void setRole(int role) {
+    public void setRole(String role) {
         this.role = role;
     }
 
@@ -128,4 +128,6 @@ public class Utilisateur {
     public void setURLp(String URLp) {
         this.URLp = URLp;
     }
+
+    
 }
