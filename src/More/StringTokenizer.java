@@ -17,7 +17,7 @@
  */
 
 // package com.Ostermiller.util;
-package net.mypapit.java;
+package More;
 /**
  * The string tokenizer class allows an application to break a string into
  * tokens.
