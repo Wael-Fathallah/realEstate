@@ -7,14 +7,20 @@ package Sprint3;
 
 import Entity.Offre;
 import Handler.OffreHandler;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
+import java.io.IOException;
 import javax.microedition.io.Connector;
+import javax.microedition.io.ContentConnection;
 import javax.microedition.io.HttpConnection;
+import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
+import javax.microedition.lcdui.Image;
+import javax.microedition.lcdui.ImageItem;
 import javax.microedition.lcdui.List;
 import javax.microedition.midlet.*;
 import javax.xml.parsers.SAXParser;
@@ -23,18 +29,19 @@ import javax.xml.parsers.SAXParserFactory;
 /**
  * @author seif
  */
-public class offreMidlet  extends MIDlet implements CommandListener, Runnable {
-    
-    
+public class offreMidlet extends MIDlet implements CommandListener, Runnable {
+
     Display disp = Display.getDisplay(this);
     Command cmdParse = new Command("offres", Command.SCREEN, 0);
     Command cmdBack = new Command("Back", Command.BACK, 0);
-    Offre [] offres;
+    Offre[] offres;
     List lst = new List("offres", List.IMPLICIT);
     Form f = new Form("Accueil");
     Form form = new Form("Infos offre");
     Form loadingDialog = new Form("Please Wait");
     StringBuffer sb = new StringBuffer();
+
+    private Canvas[] canvases;
 
     public void startApp() {
         f.append("Click Offres to get your offres_list");
@@ -45,15 +52,15 @@ public class offreMidlet  extends MIDlet implements CommandListener, Runnable {
         form.setCommandListener(this);
         disp.setCurrent(f);
     }
-    
+
     public void pauseApp() {
     }
-    
+
     public void destroyApp(boolean unconditional) {
     }
 
     public void commandAction(Command c, Displayable d) {
-         if (c == cmdParse) {
+        if (c == cmdParse) {
             disp.setCurrent(loadingDialog);
             Thread th = new Thread(this);
             th.start();
@@ -62,6 +69,13 @@ public class offreMidlet  extends MIDlet implements CommandListener, Runnable {
         if (c == List.SELECT_COMMAND) {
             form.append("Informations Offre: \n");
             form.append(showOffre(lst.getSelectedIndex()));
+            try {
+                Image im=this.getImage(lst.getSelectedIndex());
+                ImageItem ii = new ImageItem(null, im, ImageItem.LAYOUT_DEFAULT, null);
+                form.append(ii);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
             disp.setCurrent(form);
         }
 
@@ -71,7 +85,6 @@ public class offreMidlet  extends MIDlet implements CommandListener, Runnable {
         }
     }
 
-    
     public void run() {
         try {
             // this will handle our XML
@@ -79,7 +92,7 @@ public class offreMidlet  extends MIDlet implements CommandListener, Runnable {
             // get a parser object
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
             // get an InputStream from somewhere (could be HttpConnection, for example)
-            HttpConnection hc = (HttpConnection) Connector.open("http://localhost/pidev_sprint2/web/app_dev.php/v1/offres.xml");
+            HttpConnection hc = (HttpConnection) Connector.open("http://localhost/pidev_sprint2/web/app_dev.php/v1/offres.xml?limit=2");
             DataInputStream dis = new DataInputStream(hc.openDataInputStream());
             parser.parse(dis, offresHandler);
             // display the result
@@ -87,8 +100,8 @@ public class offreMidlet  extends MIDlet implements CommandListener, Runnable {
 
             if (offres.length > 0) {
                 for (int i = 0; i < offres.length; i++) {
-                    lst.append(offres[i].getId()+" "
-                            +offres[i].getId_gerant(), null);
+
+                    lst.append(offres[i].getDescription(), this.getImage(i));
 
                 }
             }
@@ -96,6 +109,7 @@ public class offreMidlet  extends MIDlet implements CommandListener, Runnable {
         } catch (Exception e) {
             System.out.println("Exception:" + e.toString());
         }
+
         disp.setCurrent(lst);
     }
 
@@ -122,10 +136,62 @@ public class offreMidlet  extends MIDlet implements CommandListener, Runnable {
             sb.append("\n");
             sb.append("*surface: ");
             sb.append(offres[i].getSurface());
-            
+
         }
         res = sb.toString();
         sb = new StringBuffer("");
         return res;
+    }
+
+    private Image getImage(int i) throws IOException {
+        ContentConnection connection = (ContentConnection) Connector.open(offres[i].getUrlImage());
+
+    // * There is a bug in MIDP 1.0.3 in which read() sometimes returns
+        //   an invalid length. To work around this, I have changed the 
+        //   stream to DataInputStream and called readFully() instead of read()
+//    InputStream iStrm = connection.openInputStream();
+        DataInputStream iStrm = connection.openDataInputStream();
+
+        ByteArrayOutputStream bStrm = null;
+        Image im = null;
+
+        try {
+            // ContentConnection includes a length method
+            byte imageData[];
+            int length = (int) connection.getLength();
+            if (length != -1) {
+                imageData = new byte[length];
+
+                // Read the png into an array
+//        iStrm.read(imageData);        
+                iStrm.readFully(imageData);
+            } else // Length not available...
+            {
+                bStrm = new ByteArrayOutputStream();
+
+                int ch;
+                while ((ch = iStrm.read()) != -1) {
+                    bStrm.write(ch);
+                }
+
+                imageData = bStrm.toByteArray();
+                bStrm.close();
+            }
+
+            // Create the image from the byte array
+            im = Image.createImage(imageData, 0, imageData.length);
+        } finally {
+            // Clean up
+            if (iStrm != null) {
+                iStrm.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+            if (bStrm != null) {
+                bStrm.close();
+            }
+        }
+        return (im == null ? null : im);
     }
 }

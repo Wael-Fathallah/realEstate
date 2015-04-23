@@ -117,6 +117,18 @@ public class OffreHandler extends DefaultHandler{
             String nbrpiece=strB.toString();
             currentOffre.setNbrPiece(Integer.parseInt(nbrpiece));
         } 
+         else if (qName.equals("nbrpiece")) {  
+            String nbrpiece=strB.toString();
+            currentOffre.setNbrPiece(Integer.parseInt(nbrpiece));
+         }
+         else if (qName.equals("urlimage")) {  
+            String urlImage=strB.toString();
+            currentOffre.setUrlImage(urlImage);
+         }
+        else if (qName.equals("description")) {  
+            String description=strB.toString();
+            currentOffre.setDescription(description);
+         }
         
         
         
@@ -157,6 +169,16 @@ public class OffreHandler extends DefaultHandler{
                 if (surfaceTag.equals("open")) {
                      strB.append(ch, start, length);  
             } 
+                else 
+                    if(urlImageTag.equals("open")){
+                        strB.append(ch,start,length);
+                    }
+             else 
+                    if(descriptionTag.equals("open")){
+                        strB.append(ch,start,length);
+                    }
+            
+            
         }
     }
     
