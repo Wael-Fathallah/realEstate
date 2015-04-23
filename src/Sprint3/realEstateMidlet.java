@@ -16,9 +16,12 @@
 package Sprint3;
 
 import Entity.Boitemessages;
+import Entity.Utilisateur;
 import Handler.BoitemessagesHandler;
+import Handler.UtilisateurHandler;
 import More.HttpMultipartRequest;
 import More.PieChartCanvas;
+import More.StringTokenizer;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +41,8 @@ import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Image;
+import javax.microedition.lcdui.Item;
+import javax.microedition.lcdui.ItemCommandListener;
 import javax.microedition.lcdui.List;
 import javax.microedition.lcdui.StringItem;
 import javax.microedition.lcdui.TextBox;
@@ -46,9 +51,6 @@ import javax.microedition.midlet.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import More.StringTokenizer;
-import javax.microedition.lcdui.Item;
-import javax.microedition.lcdui.ItemCommandListener;
 import org.xml.sax.SAXException;
 
 /**
@@ -70,7 +72,9 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private int     userType;      //have to saved
     private int     CorG;
     private Command upload;
-    //Connexion
+    private Command listC;
+    private Utilisateur[] utilisateur;
+     //Connexion
     HttpConnection hc;
     DataInputStream dis;
     String url = "http://localhost/Pi_MOB_DAO/";
@@ -271,6 +275,27 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             display.setCurrent(inscrireGSegment());
         }
         // </editor-fold> 
+        
+        // <editor-fold defaultstate="collapsed" desc=" ListClients Command ">
+         if (c == listC) {
+            
+            runState = "ListC";
+            
+            urlX="Utilisateur/getXmlClientsC.php";
+            new Thread(new Runnable() {
+                    public void run() {
+                        try {              
+                            UtilisateurHandler();
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }).start();       
+
+            display.setCurrent(connectingSegment());
+        }
+        
+        // </editor-fold>
         
         // <editor-fold defaultstate="collapsed" desc=" MailBox Commands ">
         if (c == inbox) {
@@ -477,8 +502,10 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         exit= new Command("Exit", Command.OK, 0);
         inbox= new Command("Inbox", Command.SCREEN, 0);
         statCom= new Command("Stat", Command.SCREEN, 0);
+        listC   =   new Command("List Clients", Command.SCREEN, 0);
         XForm.addCommand(exit);
         XForm.addCommand(inbox);
+        XForm.addCommand(listC);
         XForm.addCommand(statCom);
         XForm.setCommandListener(this);
         return XForm;
@@ -778,6 +805,43 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             lst.addCommand(exit);
             lst.setCommandListener(this);
             display.setCurrent(lst);
+        } catch (ParserConfigurationException ex) {
+            ex.printStackTrace();
+        } catch (SAXException ex) {
+            ex.printStackTrace();
+        }
+    }
+    // </editor-fold>  
+    
+    // <editor-fold defaultstate="collapsed" desc=" UtilisateurHandler ">
+    void UtilisateurHandler() throws IOException{
+        try {
+            UtilisateurHandler utilisateurHandler = new UtilisateurHandler();
+                // get a parser object
+                SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+                // get an InputStream from somewhere (could be HttpConnection, for example)
+                hc = (HttpConnection) Connector.open(url+replace(urlX, " ", "+"));
+                dis = new DataInputStream(hc.openDataInputStream());
+                parser.parse(dis, utilisateurHandler);
+                // display the result
+                utilisateur = utilisateurHandler.getUtilisateur();
+                lst = new List("List Client", List.IMPLICIT);
+                    
+                    if (utilisateur.length > 0) {
+
+                        for (int i = 0; i < utilisateur.length; i++) {
+                            lst.append(utilisateur[i].getNom()+" "
+                                    +utilisateur[i].getPrenom()+" "
+                                    +utilisateur[i].getMail(), null);
+                        }
+                    }
+                back   =   new Command("Back", Command.EXIT, 0);
+                exit   =   new Command("Exit", Command.OK, 0);
+                
+                lst.addCommand(back);
+                lst.addCommand(exit);
+                lst.setCommandListener(this);
+                display.setCurrent(lst);
         } catch (ParserConfigurationException ex) {
             ex.printStackTrace();
         } catch (SAXException ex) {
