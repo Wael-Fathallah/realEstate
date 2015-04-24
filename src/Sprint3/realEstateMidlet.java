@@ -70,9 +70,6 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private String  userPass;      //have to saved
     private int     userType;      //have to saved
     private int     CorG;
-    private Command upload;
-    private Command listC;
-    private Utilisateur[] utilisateur;
     
      //Connexion
     HttpConnection hc;
@@ -107,7 +104,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     
     // <editor-fold defaultstate="collapsed" desc=" Inbox Screen">
     private Boitemessages[] boitemessages;
-    private List        lst;
+    private List        lstB;
     private Command     back;
     private Command     inbox;
     private Command     sent;
@@ -116,16 +113,32 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private TextBox     bodyM;
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc=" Inbox Screen">
+    // <editor-fold defaultstate="collapsed" desc=" Stat Screen">
     private Displayable statDis;
     private Command     statCom;
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Offres Screen">
-    
+    private List        lstO;
     private Command     listOffreCom;
     private Offre [] offres;
-    Form form = new Form("Infos offre");
+    Form formO = new Form("Infos offre");
+    private Command     mapC;
+     
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" Client Screen">
+    private List        lstC;
+    private Command listC;
+    private Utilisateur[] utilisateur;
+     
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" Archive Screen">
+    private List        lstA;
+    private Command     archiveCom;
+    private Archive [] archives;
+    Form formA = new Form("Infos offre");
      
     // </editor-fold>
     
@@ -171,12 +184,20 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             notifyDestroyed();
         }
         //Back
-        if (c == back && d != inscrireForm) {
+        if (c == back && d != inscrireForm && d != formA && d != formO) {
             display.setCurrent(wellcomeSegment(myName));
         }
         //Back
         if (c == back && d == inscrireForm) {
             display.setCurrent(loginSegment());
+        }
+        //Back
+        if (c == back && d == formA) {
+            display.setCurrent(lstA);
+        }
+        //Back
+        if (c == back && d == formO) {
+            display.setCurrent(lstO);
         }
         // </editor-fold> 
         
@@ -411,20 +432,57 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                     }
                 }).start();   
         }
-         if (c == List.SELECT_COMMAND) {
+         if (c == List.SELECT_COMMAND && d == lstO) {
            
-            form.append("Informations Offre: \n");
-            form.append(showOffre(lst.getSelectedIndex()));
+            formO.append("Informations Offre: \n");
+            formO.append(showOffre(lstO.getSelectedIndex()));
             try {
-                Image im=this.getImage(lst.getSelectedIndex());
+                Image im=this.getImage(lstO.getSelectedIndex());
                 ImageItem ii = new ImageItem(null, im, ImageItem.LAYOUT_DEFAULT, null);
-                form.append(ii);
+                formO.append(ii);
+                mapC= new Command("Show MAP", Command.ITEM, 0);
+                StringItem item = new StringItem("", "Show MAP ", Item.BUTTON);
+                item.setItemCommandListener(this);
+                item.setDefaultCommand(mapC);
+                
+                formO.append(item);
+                formO.setCommandListener(this);
+                back = new Command("Back", Command.EXIT, 0);
+                formO.addCommand(back);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-            display.setCurrent(form);
+            display.setCurrent(formO);
         }
-        // </editor-fold> 
+        // </editor-fold>
+         
+        // <editor-fold defaultstate="collapsed" desc=" archive Command ">
+        if (c == archiveCom) {
+            display.setCurrent(connectingSegment());
+            new Thread(new Runnable() {
+                    public void run() {
+                        try {              
+                            ArchiveHandler();
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }).start();   
+        }
+         if (c == List.SELECT_COMMAND && d == lstA) {
+           
+            formA.append("Informations Archive: \n");
+            formA.append(showArchive(lstA.getSelectedIndex()));
+            try {
+                Image im=this.getImage(lstA.getSelectedIndex());
+                ImageItem ii = new ImageItem(null, im, ImageItem.LAYOUT_DEFAULT, null);
+                formA.append(ii);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            display.setCurrent(formA);
+        }
+        // </editor-fold>
     }
     public void commandAction(Command c, Item item) {
         
@@ -444,6 +502,15 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         }
         // </editor-fold> 
         
+        // <editor-fold defaultstate="collapsed" desc=" open MAP ">
+        if (c == mapC) {
+            display.setCurrent(connectingSegment());
+            
+            float lon = (float) 37.212487;
+            float lalt = (float) 10.125656;
+            display.setCurrent(new GoogleMapsMarkerCanvas(this, formO, lon, lalt));  
+        }
+        // </editor-fold> 
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Segments Block ">
@@ -807,23 +874,23 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             // display the result
             boitemessages = boiteHandler.getBoitemessages();
             if("Inbox".equals(runState)){
-                lst = new List("Inbox", List.IMPLICIT);
+                lstB = new List("Inbox", List.IMPLICIT);
                 
                 if (boitemessages.length > 0) {
                     
                     for (int i = 0; i < boitemessages.length; i++) {
-                        lst.append(boitemessages[i].getNom_expediteur()+" "
+                        lstB.append(boitemessages[i].getNom_expediteur()+" "
                                 +boitemessages[i].getPrenom_expediteur()+" "
                                 +boitemessages[i].getContenu().substring(0, Math.min(boitemessages[i].getContenu().length(), 10))+"...", null);
                     }
                 }
             }else{
-                lst = new List("Sent", List.IMPLICIT);
+                lstB = new List("Sent", List.IMPLICIT);
                 
                 if (boitemessages.length > 0) {
                     
                     for (int i = 0; i < boitemessages.length; i++) {
-                        lst.append(boitemessages[i].getNom_destinataire()+" "
+                        lstB.append(boitemessages[i].getNom_destinataire()+" "
                                 +boitemessages[i].getPrenom_destinataire()+" "
                                 +boitemessages[i].getContenu().substring(0, Math.min(boitemessages[i].getContenu().length(), 10))+"...", null);
                     }
@@ -836,13 +903,13 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             Compose   =   new Command("Compose", Command.OK, 0);
             sent   =   new Command("Sent", Command.OK, 0);
             exit   =   new Command("Exit", Command.OK, 0);
-            lst.addCommand(back);
-            lst.addCommand(inbox);
-            lst.addCommand(sent);
-            lst.addCommand(Compose);
-            lst.addCommand(exit);
-            lst.setCommandListener(this);
-            display.setCurrent(lst);
+            lstB.addCommand(back);
+            lstB.addCommand(inbox);
+            lstB.addCommand(sent);
+            lstB.addCommand(Compose);
+            lstB.addCommand(exit);
+            lstB.setCommandListener(this);
+            display.setCurrent(lstB);
         } catch (ParserConfigurationException ex) {
             ex.printStackTrace();
         } catch (SAXException ex) {
@@ -863,12 +930,12 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 parser.parse(dis, utilisateurHandler);
                 // display the result
                 utilisateur = utilisateurHandler.getUtilisateur();
-                lst = new List("List Client", List.IMPLICIT);
+                lstC = new List("List Client", List.IMPLICIT);
                     
                     if (utilisateur.length > 0) {
 
                         for (int i = 0; i < utilisateur.length; i++) {
-                            lst.append(utilisateur[i].getNom()+" "
+                            lstC.append(utilisateur[i].getNom()+" "
                                     +utilisateur[i].getPrenom()+" "
                                     +utilisateur[i].getMail(), null);
                         }
@@ -876,10 +943,10 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 back   =   new Command("Back", Command.EXIT, 0);
                 exit   =   new Command("Exit", Command.OK, 0);
                 
-                lst.addCommand(back);
-                lst.addCommand(exit);
-                lst.setCommandListener(this);
-                display.setCurrent(lst);
+                lstC.addCommand(back);
+                lstC.addCommand(exit);
+                lstC.setCommandListener(this);
+                display.setCurrent(lstC);
         } catch (ParserConfigurationException ex) {
             ex.printStackTrace();
         } catch (SAXException ex) {
@@ -901,16 +968,16 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             parser.parse(dis, offresHandler);
             // display the result
             offres = offresHandler.getOffres();
-            lst = new List("List Offre", List.IMPLICIT);
-            lst.setCommandListener(this);
+            lstO = new List("List Offre", List.IMPLICIT);
+            lstO.setCommandListener(this);
             if (offres.length > 0) {
                 for (int i = 0; i < offres.length; i++) {
-
-                    lst.append(offres[i].getDescription(), this.getImage(i));
-
+                    
+                    lstO.append(offres[i].getDescription(), this.getImage(i));
+                    
                 }
             }
-         display.setCurrent(lst);
+            display.setCurrent(lstO);
         } catch (ParserConfigurationException ex) {
             ex.printStackTrace();
         } catch (SAXException ex) {
@@ -999,6 +1066,62 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             sb.append("*surface: ");
             sb.append(offres[i].getSurface());
 
+        }
+        res = sb.toString();
+        sb = new StringBuffer("");
+        return res;
+    }
+      // </editor-fold> 
+    
+    // <editor-fold defaultstate="collapsed" desc=" ArchiveHandler ">
+    void ArchiveHandler() throws IOException{
+        try {
+            // this will handle our XML
+            ArchiveHandler ArchivesHandler = new ArchiveHandler();
+            // get a parser object
+            SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+            // get an InputStream from somewhere (could be HttpConnection, for example)
+            HttpConnection hc = (HttpConnection) Connector.open("http://localhost/pidevfinal3/pidev_sprint2/web/app_dev.php/v1/archives.xml");
+            DataInputStream dis = new DataInputStream(hc.openDataInputStream());
+            parser.parse(dis, ArchivesHandler);
+            // display the result
+            archives = ArchivesHandler.getArchive();
+            lstA = new List("Archives", List.IMPLICIT);
+            lstA.setCommandListener(this);
+            if (archives.length > 0) {
+                for (int i = 0; i < archives.length; i++) {
+                    lstA.append(archives[i].getIdGerant()+" "
+                            +archives[i].getDate()+" "
+                            +archives[i].getUrl(), null);
+
+                }
+            }
+         display.setCurrent(lstA);
+        } catch (ParserConfigurationException ex) {
+            ex.printStackTrace();
+        } catch (SAXException ex) {
+            ex.printStackTrace();
+        }
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" showArchive ">
+    private String showArchive(int i) {
+        String res = "";
+        sb = new StringBuffer();
+        if (archives.length > 0) {
+            sb.append("* ");
+            sb.append(archives[i].getId());
+            sb.append("\n");
+            sb.append("* ");
+            sb.append(archives[i].getIdGerant());
+            sb.append("\n");
+            sb.append("* ");
+            sb.append(archives[i].getDate());
+            sb.append("\n");
+            sb.append("* ");
+            sb.append(archives[i].getUrl());
+            sb.append("\n");
         }
         res = sb.toString();
         sb = new StringBuffer("");
