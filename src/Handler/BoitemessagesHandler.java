@@ -28,7 +28,7 @@ import Entity.*;
  * @author FATHALLAH Wael
  */
 public class BoitemessagesHandler extends DefaultHandler {
-  /*
+  
     private Vector boitemessagess;
     String idTag = "close";
     String nomExTag = "close";
@@ -135,5 +135,5 @@ public class BoitemessagesHandler extends DefaultHandler {
             }
         }
     }
-    */
+    
 }

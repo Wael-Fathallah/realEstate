@@ -32,13 +32,19 @@ import javax.xml.parsers.SAXParserFactory;
 public class offreMidlet extends MIDlet implements CommandListener, Runnable {
 
     Display disp = Display.getDisplay(this);
+    
     Command cmdParse = new Command("offres", Command.SCREEN, 0);
     Command cmdBack = new Command("Back", Command.BACK, 0);
+    Command cmdDelete=new Command("Delete",Command.OK,0);
+    
     Offre[] offres;
+    
     List lst = new List("offres", List.IMPLICIT);
+    
     Form f = new Form("Accueil");
     Form form = new Form("Infos offre");
     Form loadingDialog = new Form("Please Wait");
+    
     StringBuffer sb = new StringBuffer();
 
     private Canvas[] canvases;
@@ -48,7 +54,10 @@ public class offreMidlet extends MIDlet implements CommandListener, Runnable {
         f.addCommand(cmdParse);
         f.setCommandListener(this);
         lst.setCommandListener(this);
+        
         form.addCommand(cmdBack);
+        form.addCommand(cmdDelete);
+        
         form.setCommandListener(this);
         disp.setCurrent(f);
     }
