@@ -15,16 +15,17 @@
  */
 package Sprint3;
 
-import Entity.Boitemessages;
-import Handler.BoitemessagesHandler;
-import More.HttpMultipartRequest;
-import More.PieChartCanvas;
+import Entity.*;
+import Handler.*;
+import More.*;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import javax.microedition.io.Connector;
+import javax.microedition.io.ContentConnection;
 import javax.microedition.io.HttpConnection;
 import javax.microedition.io.file.FileConnection;
 import javax.microedition.io.file.FileSystemRegistry;
@@ -38,6 +39,9 @@ import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Image;
+import javax.microedition.lcdui.ImageItem;
+import javax.microedition.lcdui.Item;
+import javax.microedition.lcdui.ItemCommandListener;
 import javax.microedition.lcdui.List;
 import javax.microedition.lcdui.StringItem;
 import javax.microedition.lcdui.TextBox;
@@ -46,9 +50,6 @@ import javax.microedition.midlet.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import More.StringTokenizer;
-import javax.microedition.lcdui.Item;
-import javax.microedition.lcdui.ItemCommandListener;
 import org.xml.sax.SAXException;
 
 /**
@@ -70,7 +71,10 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private int     userType;      //have to saved
     private int     CorG;
     private Command upload;
-    //Connexion
+    private Command listC;
+    private Utilisateur[] utilisateur;
+    
+     //Connexion
     HttpConnection hc;
     DataInputStream dis;
     String url = "http://localhost/Pi_MOB_DAO/";
@@ -115,6 +119,14 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     // <editor-fold defaultstate="collapsed" desc=" Inbox Screen">
     private Displayable statDis;
     private Command     statCom;
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" Offres Screen">
+    
+    private Command     listOffreCom;
+    private Offre [] offres;
+    Form form = new Form("Infos offre");
+     
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Am not here so leave me alone">
@@ -272,6 +284,27 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         }
         // </editor-fold> 
         
+        // <editor-fold defaultstate="collapsed" desc=" ListClients Command ">
+         if (c == listC) {
+            
+            runState = "ListC";
+            
+            urlX="Utilisateur/getXmlClientsC.php";
+            new Thread(new Runnable() {
+                    public void run() {
+                        try {              
+                            UtilisateurHandler();
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }).start();       
+
+            display.setCurrent(connectingSegment());
+        }
+        
+        // </editor-fold>
+        
         // <editor-fold defaultstate="collapsed" desc=" MailBox Commands ">
         if (c == inbox) {
             
@@ -362,6 +395,34 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         if (c == statCom) {
             int[] data = { 100, 100, 100, 30, 30 };
             display.setCurrent(statSegment(data));
+        }
+        // </editor-fold> 
+        
+        // <editor-fold defaultstate="collapsed" desc=" offre Command ">
+        if (c == listOffreCom) {
+            display.setCurrent(connectingSegment());
+            new Thread(new Runnable() {
+                    public void run() {
+                        try {              
+                            OffreHandler();
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }).start();   
+        }
+         if (c == List.SELECT_COMMAND) {
+           
+            form.append("Informations Offre: \n");
+            form.append(showOffre(lst.getSelectedIndex()));
+            try {
+                Image im=this.getImage(lst.getSelectedIndex());
+                ImageItem ii = new ImageItem(null, im, ImageItem.LAYOUT_DEFAULT, null);
+                form.append(ii);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            display.setCurrent(form);
         }
         // </editor-fold> 
     }
@@ -477,9 +538,13 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         exit= new Command("Exit", Command.OK, 0);
         inbox= new Command("Inbox", Command.SCREEN, 0);
         statCom= new Command("Stat", Command.SCREEN, 0);
+        listC   =   new Command("List Clients", Command.SCREEN, 0);
+        listOffreCom  =   new Command("List Offre", Command.SCREEN, 0);
         XForm.addCommand(exit);
         XForm.addCommand(inbox);
+        XForm.addCommand(listC);
         XForm.addCommand(statCom);
+        XForm.addCommand(listOffreCom);
         XForm.setCommandListener(this);
         return XForm;
     }
@@ -785,6 +850,161 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         }
     }
     // </editor-fold>  
+    
+    // <editor-fold defaultstate="collapsed" desc=" UtilisateurHandler ">
+    void UtilisateurHandler() throws IOException{
+        try {
+            UtilisateurHandler utilisateurHandler = new UtilisateurHandler();
+                // get a parser object
+                SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+                // get an InputStream from somewhere (could be HttpConnection, for example)
+                hc = (HttpConnection) Connector.open(url+replace(urlX, " ", "+"));
+                dis = new DataInputStream(hc.openDataInputStream());
+                parser.parse(dis, utilisateurHandler);
+                // display the result
+                utilisateur = utilisateurHandler.getUtilisateur();
+                lst = new List("List Client", List.IMPLICIT);
+                    
+                    if (utilisateur.length > 0) {
+
+                        for (int i = 0; i < utilisateur.length; i++) {
+                            lst.append(utilisateur[i].getNom()+" "
+                                    +utilisateur[i].getPrenom()+" "
+                                    +utilisateur[i].getMail(), null);
+                        }
+                    }
+                back   =   new Command("Back", Command.EXIT, 0);
+                exit   =   new Command("Exit", Command.OK, 0);
+                
+                lst.addCommand(back);
+                lst.addCommand(exit);
+                lst.setCommandListener(this);
+                display.setCurrent(lst);
+        } catch (ParserConfigurationException ex) {
+            ex.printStackTrace();
+        } catch (SAXException ex) {
+            ex.printStackTrace();
+        }
+    }
+    // </editor-fold> 
+    
+    // <editor-fold defaultstate="collapsed" desc=" OffreHandler ">
+    void OffreHandler() throws IOException{
+        try {
+            // this will handle our XML
+            OffreHandler offresHandler = new OffreHandler();
+            // get a parser object
+            SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+            // get an InputStream from somewhere (could be HttpConnection, for example)
+            HttpConnection hc = (HttpConnection) Connector.open("http://localhost/pidev_sprint2/web/app_dev.php/v1/offres.xml?limit=2");
+            DataInputStream dis = new DataInputStream(hc.openDataInputStream());
+            parser.parse(dis, offresHandler);
+            // display the result
+            offres = offresHandler.getOffres();
+            lst = new List("List Offre", List.IMPLICIT);
+            lst.setCommandListener(this);
+            if (offres.length > 0) {
+                for (int i = 0; i < offres.length; i++) {
+
+                    lst.append(offres[i].getDescription(), this.getImage(i));
+
+                }
+            }
+         display.setCurrent(lst);
+        } catch (ParserConfigurationException ex) {
+            ex.printStackTrace();
+        } catch (SAXException ex) {
+            ex.printStackTrace();
+        }
+    }
+    // </editor-fold> 
+    
+    // <editor-fold defaultstate="collapsed" desc=" getImage params index de l'image dans la liste ">
+    private Image getImage(int i) throws IOException {
+        ContentConnection connection = (ContentConnection) Connector.open(offres[i].getUrlImage());
+
+    // * There is a bug in MIDP 1.0.3 in which read() sometimes returns
+        //   an invalid length. To work around this, I have changed the 
+        //   stream to DataInputStream and called readFully() instead of read()
+    //    InputStream iStrm = connection.openInputStream();
+        DataInputStream iStrm = connection.openDataInputStream();
+
+        ByteArrayOutputStream bStrm = null;
+        Image im = null;
+
+        try {
+            // ContentConnection includes a length method
+            byte imageData[];
+            int length = (int) connection.getLength();
+            if (length != -1) {
+                imageData = new byte[length];
+
+                // Read the png into an array
+                // iStrm.read(imageData);        
+                iStrm.readFully(imageData);
+            } else // Length not available...
+            {
+                bStrm = new ByteArrayOutputStream();
+
+                int ch;
+                while ((ch = iStrm.read()) != -1) {
+                    bStrm.write(ch);
+                }
+
+                imageData = bStrm.toByteArray();
+                bStrm.close();
+            }
+
+            // Create the image from the byte array
+            im = Image.createImage(imageData, 0, imageData.length);
+        } finally {
+            // Clean up
+            if (iStrm != null) {
+                iStrm.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+            if (bStrm != null) {
+                bStrm.close();
+            }
+        }
+        return (im == null ? null : im);
+    }
+    // </editor-fold>  
+    
+    // <editor-fold defaultstate="collapsed" desc=" ShowOffre ">
+    private String showOffre(int i) {
+        String res = "";
+        sb = new StringBuffer();
+        if (offres.length > 0) {
+            sb.append("*id: ");
+            sb.append(offres[i].getId());
+            sb.append("\n");
+            sb.append("*idGerant: ");
+            sb.append(offres[i].getId_gerant());
+            sb.append("\n");
+            sb.append("*typeImmob: ");
+            sb.append(offres[i].getTypeImmob());
+            sb.append("\n");
+            sb.append("*etat: ");
+            sb.append(offres[i].getEtat());
+            sb.append("\n");
+            sb.append("*nature: ");
+            sb.append(offres[i].getNature());
+            sb.append("\n");
+            sb.append("*payement: ");
+            sb.append(offres[i].getPayement());
+            sb.append("\n");
+            sb.append("*surface: ");
+            sb.append(offres[i].getSurface());
+
+        }
+        res = sb.toString();
+        sb = new StringBuffer("");
+        return res;
+    }
+      // </editor-fold> 
     
     // </editor-fold> 
 

@@ -45,7 +45,7 @@ public class UtilisateurHandler extends DefaultHandler {
         utilisateurs = new Vector();
     }
 
-    public Utilisateur[] getPersonne() {
+    public Utilisateur[] getUtilisateur() {
         Utilisateur[] utilisateurss = new Utilisateur[utilisateurs.size()];
         utilisateurs.copyInto(utilisateurss);
         return utilisateurss;
@@ -56,40 +56,40 @@ public class UtilisateurHandler extends DefaultHandler {
     // XML EVENT PROCESSING METHODS (DEFINED BY DefaultHandler)
     // startElement is the opening part of the tag "<tagname...>"
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-        if (qName.equals("utulisateur")) {
+        if (qName.equals("utilisateur")) {
             currentUtilisateur = new Utilisateur();
             
-            currentUtilisateur.setId(Integer.parseInt(attributes.getValue("id")));
-            currentUtilisateur.setMail(attributes.getValue("mail"));
-            currentUtilisateur.setPassword(attributes.getValue("password"));
-            currentUtilisateur.setNom(attributes.getValue("nom"));
-            currentUtilisateur.setPrenom(attributes.getValue("prenom"));
-            currentUtilisateur.setNumMobile(Integer.parseInt(attributes.getValue("numMobile")));
-            currentUtilisateur.setNumFix(Integer.parseInt(attributes.getValue("numFix")));
-            currentUtilisateur.setStatMAtri(attributes.getValue("status_matrimonial"));
-            currentUtilisateur.setRole(Integer.parseInt(attributes.getValue("role")));
-            currentUtilisateur.setURLp(attributes.getValue("URLp"));
+            currentUtilisateur.setId(attributes.getValue("u0"));
+            currentUtilisateur.setMail(attributes.getValue("u3"));
+            currentUtilisateur.setPassword(attributes.getValue("u4"));
+            currentUtilisateur.setNom(attributes.getValue("u1"));
+            currentUtilisateur.setPrenom(attributes.getValue("u2"));
+            currentUtilisateur.setNumMobile(attributes.getValue("u5"));
+            currentUtilisateur.setNumFix(attributes.getValue("u6"));
+            currentUtilisateur.setStatMAtri(attributes.getValue("u7"));
+            currentUtilisateur.setRole(attributes.getValue("u8"));
+            currentUtilisateur.setURLp(attributes.getValue("u9"));
             
             
-        } else if (qName.equals("id")) {
+        } else if (qName.equals("u0")) {
             idTag = "open";
-        } else if (qName.equals("mail")) {
+        } else if (qName.equals("u3")) {
             mailTag = "open";
-        } else if (qName.equals("password")) {
+        } else if (qName.equals("u4")) {
             passTag = "open";
-        } else if (qName.equals("nom")) {
+        } else if (qName.equals("u1")) {
             nomTag = "open";
-        } else if (qName.equals("prenom")) {
+        } else if (qName.equals("u2")) {
             prenTag = "open";
-        } else if (qName.equals("numMobile")) {
+        } else if (qName.equals("u5")) {
             numMTag = "open";
-        } else if (qName.equals("numFix")) {
+        } else if (qName.equals("u6")) {
             numFTag = "open";
-        } else if (qName.equals("status_matrimonial")) {
+        } else if (qName.equals("u7")) {
             statMTag = "open";
-        } else if (qName.equals("role")) {
+        } else if (qName.equals("u8")) {
             rolTag = "open";
-        } else if (qName.equals("URLp")) {
+        } else if (qName.equals("u9")) {
             URLpTag = "open";
         }
        
@@ -97,29 +97,29 @@ public class UtilisateurHandler extends DefaultHandler {
 
     public void endElement(String uri, String localName, String qName) throws SAXException {
 
-        if (qName.equals("person")) {
+        if (qName.equals("utilisateur")) {
             // we are no longer processing a <reg.../> tag
             utilisateurs.addElement(currentUtilisateur);
             currentUtilisateur = null;
-        } else if (qName.equals("id")) {
+        } else if (qName.equals("u0")) {
             idTag = "close";
-        } else if (qName.equals("mail")) {
+        } else if (qName.equals("u3")) {
             mailTag = "close";
-        } else if (qName.equals("password")) {
+        } else if (qName.equals("u4")) {
             passTag = "close";
-        } else if (qName.equals("nom")) {
+        } else if (qName.equals("u1")) {
             nomTag = "close";
-        } else if (qName.equals("prenom")) {
+        } else if (qName.equals("u2")) {
             prenTag = "close";
-        } else if (qName.equals("numMobile")) {
+        } else if (qName.equals("u5")) {
             numMTag = "close";
-        } else if (qName.equals("numFix")) {
+        } else if (qName.equals("u6")) {
             numFTag = "close";
-        } else if (qName.equals("status_matrimonial")) {
+        } else if (qName.equals("u7")) {
             statMTag = "close";
-        } else if (qName.equals("role")) {
+        } else if (qName.equals("u8")) {
             rolTag = "close";
-        } else if (qName.equals("URLp")) {
+        } else if (qName.equals("u9")) {
             URLpTag = "close";
         }
     }
@@ -130,7 +130,7 @@ public class UtilisateurHandler extends DefaultHandler {
         if (currentUtilisateur != null) {
             // don't forget to trim excess spaces from the ends of the string
             if (idTag.equals("open")) {
-                currentUtilisateur.setId(Integer.parseInt(new String(ch, start, length).trim()));
+                currentUtilisateur.setId(new String(ch, start, length).trim());
             } else
                 if (mailTag.equals("open")) {
                 currentUtilisateur.setMail(new String(ch, start, length).trim());
@@ -145,16 +145,16 @@ public class UtilisateurHandler extends DefaultHandler {
                 currentUtilisateur.setPrenom(new String(ch, start, length).trim());
             } else
                 if (numMTag.equals("open")) {
-                currentUtilisateur.setNumMobile(Integer.parseInt(new String(ch, start, length).trim()));
+                currentUtilisateur.setNumMobile(new String(ch, start, length).trim());
             } else
                     if (numFTag.equals("open")) {
-                currentUtilisateur.setNumFix(Integer.parseInt(new String(ch, start, length).trim()));
+                currentUtilisateur.setNumFix(new String(ch, start, length).trim());
             } else
                 if (statMTag.equals("open")) {
                 currentUtilisateur.setStatMAtri(new String(ch, start, length).trim());
             } else
                     if (rolTag.equals("open")) {
-                currentUtilisateur.setRole(Integer.parseInt(new String(ch, start, length).trim()));
+                currentUtilisateur.setRole(new String(ch, start, length).trim());
             } else
                     if (URLpTag.equals("open")) {
                 currentUtilisateur.setURLp(new String(ch, start, length).trim());
