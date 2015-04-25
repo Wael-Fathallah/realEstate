@@ -142,6 +142,12 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
      
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc=" Stat Screen">
+    
+    private Stat1 [] stat1;
+     
+    // </editor-fold>
+    
     // <editor-fold defaultstate="collapsed" desc=" Am not here so leave me alone">
     public realEstateMidlet() {
         currDirName = MEGA_ROOT;
@@ -414,8 +420,23 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         
         // <editor-fold defaultstate="collapsed" desc=" Stat Command ">
         if (c == statCom) {
-            int[] data = { 100, 100, 100, 30, 30 };
-            display.setCurrent(statSegment(data));
+            
+            new Thread(new Runnable() {
+                    public void run() {
+                        try {              
+                            stat1 = Stat1Handler();
+                            Integer.parseInt(stat1[0].getV5());
+                            System.err.println(stat1[0].getV4());
+                            int[] data = { Integer.parseInt(stat1[0].getV5()), Integer.parseInt(stat1[0].getV4()), 
+                                            Integer.parseInt(stat1[0].getV3()), Integer.parseInt(stat1[0].getV2()), 
+                                            Integer.parseInt(stat1[0].getV1()) };
+                            display.setCurrent(statSegment(data));
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }).start();   
+            
         }
         // </editor-fold> 
         
@@ -1128,6 +1149,30 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         return res;
     }
       // </editor-fold> 
+    
+    // <editor-fold defaultstate="collapsed" desc=" StatHandler ">
+    Stat1 [] Stat1Handler() throws IOException{
+        try {
+            // this will handle our XML
+            Stat1Handler Stat1Handler = new Stat1Handler();
+            // get a parser object
+            SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+            // get an InputStream from somewhere (could be HttpConnection, for example)
+            HttpConnection hc = (HttpConnection) Connector.open("http://localhost/pi_mob_dao/Offre/Stat/getXmlStat1.php");
+            DataInputStream dis = new DataInputStream(hc.openDataInputStream());
+            parser.parse(dis, Stat1Handler);
+            // display the result
+            stat1 = Stat1Handler.getStat1();
+            return stat1;
+            
+        } catch (ParserConfigurationException ex) {
+            ex.printStackTrace();
+        } catch (SAXException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+    // </editor-fold>
     
     // </editor-fold> 
 
