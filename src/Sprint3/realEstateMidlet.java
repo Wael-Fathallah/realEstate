@@ -61,6 +61,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private Display display;
     private Alert   errorAlert;
     private Form    XForm;
+    private Image   appIcon;
     private String  runState;
     private Form    connectForm;
     private StringItem messageLabel;
@@ -70,6 +71,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private String  userPass;      //have to saved
     private int     userType;      //have to saved
     private int     CorG;
+    private Displayable lastDisplayed;
     
      //Connexion
     HttpConnection hc;
@@ -102,7 +104,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private String      imageName;
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc=" Inbox Screen">
+    // <editor-fold defaultstate="collapsed" desc=" MailInbox Screen">
     private Boitemessages[] boitemessages;
     private List        lstB;
     private Command     back;
@@ -111,6 +113,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private Command     Compose;
     private Command     send;
     private TextBox     bodyM;
+    private TextBox     oneMail;
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Stat Screen">
@@ -163,6 +166,11 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         } catch (IOException e) {
             fileIcon = null;
         }
+        try {
+            appIcon = Image.createImage("/logo.png");
+        } catch (IOException e) {
+            appIcon = null;
+        }
     }
     
     public void startApp() {
@@ -190,7 +198,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             notifyDestroyed();
         }
         //Back
-        if (c == back && d != inscrireForm && d != formA && d != formO) {
+        if (c == back && d != inscrireForm && d != formA && d != formO && d != oneMail) {
             display.setCurrent(wellcomeSegment(myName));
         }
         //Back
@@ -205,6 +213,10 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         if (c == back && d == formO) {
             display.setCurrent(lstO);
         }
+        //Back
+        if (c == back && d == oneMail) {
+            display.setCurrent(lstB);
+        }
         // </editor-fold> 
         
         // <editor-fold defaultstate="collapsed" desc=" Login Command ">
@@ -217,11 +229,12 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             userName = email.getString().trim();
             userPass = password.getString().trim();
             urlX="AUTH/login.php?mail="+userName+"&pass="+userPass+"&user="+userType;
+            lastDisplayed = display.getCurrent();
             display.setCurrent(connectingSegment());
             new Thread(new Runnable() {
                 public void run() {
                     
-                    if(setData()){
+                    if(setData(lastDisplayed)){
                         String tmp = null;
                         tmp = sb.toString().trim();
                         StringTokenizer tok;
@@ -262,6 +275,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             userPass = password.getString().trim();
             myName = nom.getString().trim() + " " + prenom.getString().trim();
             userType = 1;
+            lastDisplayed = display.getCurrent();
             if(CorG==2){
                 urlX="AUTH/regC.php?mail="+userName+"&pass="+userPass+"&nom="+nom.getString().trim()+"&prenom="+prenom.getString().trim()+"&stat="+"&imgurl="+imageName;
             }else{
@@ -272,7 +286,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 public void run() {
                     
                     
-                    if(setData()){
+                    if(setData(lastDisplayed)){
                         String tmp = null;
                         tmp = sb.toString().trim();
                         StringTokenizer tok;
@@ -315,12 +329,12 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
          if (c == listC) {
             
             runState = "ListC";
-            
+            lastDisplayed = display.getCurrent();
             urlX="Utilisateur/getXmlClientsC.php";
             new Thread(new Runnable() {
                     public void run() {
                         try {              
-                            UtilisateurHandler();
+                            UtilisateurHandler(lastDisplayed);
                         } catch (IOException ex) {
                             ex.printStackTrace();
                         }
@@ -336,13 +350,13 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         if (c == inbox) {
             
             runState = "Inbox";
-          
+            lastDisplayed = display.getCurrent();
             urlX="Boitemessages/getXmlMessage.php?myID="+myID+"&IorS=I&mail="+userName+"&pass="+userPass+"&user="+userType;
             display.setCurrent(connectingSegment());
             new Thread(new Runnable() {
                     public void run() {
                         try {              
-                            BoitemessagesHandler();
+                            BoitemessagesHandler(lastDisplayed);
                         } catch (IOException ex) {
                             ex.printStackTrace();
                         }
@@ -352,13 +366,13 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         if (c == sent) {
             
             runState = "Sent";
-            
+            lastDisplayed = display.getCurrent();
             urlX="Boitemessages/getXmlMessage.php?myID="+myID+"&IorS=S&mail="+userName+"&pass="+userPass+"&user="+userType;
             display.setCurrent(connectingSegment());
             new Thread(new Runnable() {
                     public void run() {
                         try {              
-                            BoitemessagesHandler();
+                            BoitemessagesHandler(lastDisplayed);
                         } catch (IOException ex) {
                             ex.printStackTrace();
                         }
@@ -372,12 +386,13 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         if (c == send) {
 
             urlX="Boitemessages/sendMessage.php?myID="+myID+"&mail="+userName+"&pass="+userPass+"&user="+userType+"&body="+bodyM.getString().trim()+"&sendMail="+"wael.fathallah@esprit.tn";
+            lastDisplayed = display.getCurrent();
             display.setCurrent(connectingSegment());
             new Thread(new Runnable() {
                     public void run() {
                         
                             
-                        if(setData()){
+                        if(setData(lastDisplayed)){
                             String tmp = null;
                             tmp = sb.toString().trim();
                             StringTokenizer tok;
@@ -398,6 +413,24 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                     }
                 }).start();
 
+        }
+        if (c == List.SELECT_COMMAND && d == lstB) {
+           if("Inbox".equals(runState)){
+               
+                oneMail = new TextBox("From "+boitemessages[lstB.getSelectedIndex()].getNom_expediteur()+" "+   
+                                        boitemessages[lstB.getSelectedIndex()].getPrenom_expediteur(), 
+                                        boitemessages[lstB.getSelectedIndex()].getContenu(), 
+                                        200, TextField.ANY|TextField.UNEDITABLE);
+           }else if("Sent".equals(runState)){
+                oneMail = new TextBox("To "+boitemessages[lstB.getSelectedIndex()].getNom_destinataire()+" "+   
+                                        boitemessages[lstB.getSelectedIndex()].getPrenom_destinataire(), 
+                                        boitemessages[lstB.getSelectedIndex()].getContenu(), 
+                                        200, TextField.ANY|TextField.UNEDITABLE);
+           }
+           oneMail.setCommandListener(this);
+           back = new Command("Back", Command.EXIT, 0);
+           oneMail.addCommand(back);
+           display.setCurrent(oneMail);
         }
         // </editor-fold> 
         
@@ -420,11 +453,11 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         
         // <editor-fold defaultstate="collapsed" desc=" Stat Command ">
         if (c == statCom) {
-            
+            lastDisplayed = display.getCurrent();
             new Thread(new Runnable() {
                     public void run() {
                         try {              
-                            stat1 = Stat1Handler();
+                            stat1 = Stat1Handler(lastDisplayed);
                             Integer.parseInt(stat1[0].getV5());
                             System.err.println(stat1[0].getV4());
                             int[] data = { Integer.parseInt(stat1[0].getV5()), Integer.parseInt(stat1[0].getV4()), 
@@ -442,11 +475,12 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         
         // <editor-fold defaultstate="collapsed" desc=" offre Command ">
         if (c == listOffreCom) {
+            lastDisplayed = display.getCurrent();
             display.setCurrent(connectingSegment());
             new Thread(new Runnable() {
                     public void run() {
                         try {              
-                            OffreHandler();
+                            OffreHandler(lastDisplayed);
                         } catch (IOException ex) {
                             ex.printStackTrace();
                         }
@@ -479,11 +513,12 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
          
         // <editor-fold defaultstate="collapsed" desc=" archive Command ">
         if (c == archiveCom) {
+            lastDisplayed = display.getCurrent();
             display.setCurrent(connectingSegment());
             new Thread(new Runnable() {
                     public void run() {
                         try {              
-                            ArchiveHandler();
+                            ArchiveHandler(lastDisplayed);
                         } catch (IOException ex) {
                             ex.printStackTrace();
                         }
@@ -550,6 +585,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         reg2= new Command("S'inscrire like Gerant", Command.SCREEN, 0);
         exit= new Command("Exit", Command.SCREEN, 0);
         
+        loginForm.append(new ImageItem(null, appIcon, ImageItem.LAYOUT_CENTER|ImageItem.LAYOUT_NEWLINE_AFTER, null));
         loginForm.append(email);
         loginForm.append(password);
         loginForm.append(adminTorF);
@@ -846,7 +882,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" setData ">
-    boolean setData(){
+    boolean setData(Displayable lastDisplayeb){
         try {
             sb = new StringBuffer();
             hc = (HttpConnection) Connector.open(url+replace(urlX, " ", "+"));
@@ -857,7 +893,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             }
             return true;
         } catch (IOException ex) {
-            ex.printStackTrace();
+            problemCallMe(lastDisplayeb);
             return false;
         }
     }
@@ -882,7 +918,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     // </editor-fold>    
     
     // <editor-fold defaultstate="collapsed" desc=" BoitemessagesHandler ">
-    void BoitemessagesHandler() throws IOException{
+    void BoitemessagesHandler(Displayable lastDisplayeb) throws IOException{
         try {
             // this will handle our XML
             BoitemessagesHandler boiteHandler = new BoitemessagesHandler();
@@ -896,7 +932,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             boitemessages = boiteHandler.getBoitemessages();
             if("Inbox".equals(runState)){
                 lstB = new List("Inbox", List.IMPLICIT);
-                
+                lstB.setCommandListener(this);
                 if (boitemessages.length > 0) {
                     
                     for (int i = 0; i < boitemessages.length; i++) {
@@ -932,15 +968,15 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             lstB.setCommandListener(this);
             display.setCurrent(lstB);
         } catch (ParserConfigurationException ex) {
-            ex.printStackTrace();
+            problemCallMe(lastDisplayeb);          
         } catch (SAXException ex) {
-            ex.printStackTrace();
+            problemCallMe(lastDisplayeb);
         }
     }
     // </editor-fold>  
     
     // <editor-fold defaultstate="collapsed" desc=" UtilisateurHandler ">
-    void UtilisateurHandler() throws IOException{
+    void UtilisateurHandler(Displayable lastDisplayeb) throws IOException{
         try {
             UtilisateurHandler utilisateurHandler = new UtilisateurHandler();
                 // get a parser object
@@ -969,15 +1005,15 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 lstC.setCommandListener(this);
                 display.setCurrent(lstC);
         } catch (ParserConfigurationException ex) {
-            ex.printStackTrace();
+            problemCallMe(lastDisplayeb);
         } catch (SAXException ex) {
-            ex.printStackTrace();
+            problemCallMe(lastDisplayeb);
         }
     }
     // </editor-fold> 
     
     // <editor-fold defaultstate="collapsed" desc=" OffreHandler ">
-    void OffreHandler() throws IOException{
+    void OffreHandler(Displayable lastDisplayeb) throws IOException{
         try {
             // this will handle our XML
             OffreHandler offresHandler = new OffreHandler();
@@ -1000,9 +1036,9 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             }
             display.setCurrent(lstO);
         } catch (ParserConfigurationException ex) {
-            ex.printStackTrace();
+            problemCallMe(lastDisplayeb);
         } catch (SAXException ex) {
-            ex.printStackTrace();
+            problemCallMe(lastDisplayeb);
         }
     }
     // </editor-fold> 
@@ -1095,7 +1131,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
       // </editor-fold> 
     
     // <editor-fold defaultstate="collapsed" desc=" ArchiveHandler ">
-    void ArchiveHandler() throws IOException{
+    void ArchiveHandler(Displayable lastDisplayeb) throws IOException{
         try {
             // this will handle our XML
             ArchiveHandler ArchivesHandler = new ArchiveHandler();
@@ -1119,9 +1155,9 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             }
          display.setCurrent(lstA);
         } catch (ParserConfigurationException ex) {
-            ex.printStackTrace();
+            problemCallMe(lastDisplayeb);
         } catch (SAXException ex) {
-            ex.printStackTrace();
+            problemCallMe(lastDisplayeb);
         }
     }
     // </editor-fold>
@@ -1151,7 +1187,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
       // </editor-fold> 
     
     // <editor-fold defaultstate="collapsed" desc=" StatHandler ">
-    Stat1 [] Stat1Handler() throws IOException{
+    Stat1 [] Stat1Handler(Displayable lastDisplayeb) throws IOException{
         try {
             // this will handle our XML
             Stat1Handler Stat1Handler = new Stat1Handler();
@@ -1166,13 +1202,22 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             return stat1;
             
         } catch (ParserConfigurationException ex) {
-            ex.printStackTrace();
+            problemCallMe(lastDisplayeb);
         } catch (SAXException ex) {
-            ex.printStackTrace();
+            problemCallMe(lastDisplayeb);
         }
         return null;
     }
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" problemCallMe ">
+    void problemCallMe(Displayable lastDisplayeb){
+        display.setCurrent(lastDisplayeb);
+        errorAlert = new Alert("Error ", "No Connection", null,AlertType.ERROR);
+        errorAlert.setTimeout(3000);
+        display.setCurrent(errorAlert);
+    }
+    // </editor-fold> 
     
     // </editor-fold> 
 

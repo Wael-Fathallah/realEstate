@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     xmlns:demo="http://www.sun.com/svg/demo"
+     id="root"
+     width="100%" height="100%" viewBox="0 0 240 320" 
+     xml:space="preserve"
+     preserveAspectRatio="none">
+
+    <rect fill="#35556B" width="240" height="320"/>
+    <g id="processingIndicator" transform="translate(120, 97) scale(0.5)" >
+	<g id="processingIndicator.outerCircle">
+</g>
+	<g id="processingIndicator.innerCircle">
+</g>
+	
+    </g>
+<rect transform="matrix(2.2217343,0.0,0.0,0.79616773,-10.833723,2.2831783)"  id="_1" x="8.867496" y="3.4698894" width="100" height="50" fill="#AAAABB"/>
+<rect transform="matrix(2.212362,0.0,0.0,4.7572117,-14.472789,-197.69514)"  id="_2" x="10.79521" y="52.43388" width="100" height="50" fill="#AAAABB"/>
+<text id="_3" x="61.918262" y="17.388004" fill="red" stroke="black" stroke-width="1" font-size="15">Message From</text>
+<g id="label_0" transform="translate(154.37155,30.959131)">                <text display="none">FirstName LastName</text>                <g>                                        <text id="label_0_text" x="-172.27284" y="7.120491"  font-size="16" font-family="">       Label   </text>                    <text display="none">type=text</text>                </g>            </g>
+<g id="label_1" transform="translate(25.021763,63.190556)">                <text display="none">Body</text>                <g>                                        <text id="label_1_text" x="-45.226646" y="12.20966"  font-size="16" font-family="">       Label   </text>                    <text display="none">type=text</text>                </g>            </g>
+<g transform="translate(-3.7255287,290.59125)" id="button_0">        <image transform="matrix(78.79452,0.0,0.0,0.9702,0.75,5.25)"  width="1" height="25"              xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAZCAIAAAB/8tMoAAAAAXNSR0IArs4c6QAAAARnQU1BAACx              jwv8YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAF9JREFU              GFdFw80KRUAAgNHv/R/FmqWyUOSmRN2bJLEgkvw2Y4xJ2dxTB2MM/zdG6/d9KbQ6uU6JkgIpD4TY              OPaZfR1Zpo5xqOnbgrb50pQJVR5RZD6/2CUNHT6eRRLYDwfARHOzUoReAAAAAElFTkSuQmCC">              </image>        <rect transform="" x="0.0" y="0.0" rx="5" ry="5"  width="80" height="30" fill="none" stroke="rgb(73,46,55)" stroke-width="1.5">           </rect>        <g>            <text display="none">type=body</text>            <rect id="button_0_body" x="0.0" y="0.0" rx="5" ry="5"  width="80" height="30" fill="none" stroke="rgb(255,165,0)" stroke-width="0">                                <animate attributeName="stroke-width" attributeType="XML" begin="button_0.focusin" dur="0.25s" fill="freeze" to="2"/>                <animate attributeName="stroke-width" attributeType="XML" begin="button_0.focusout" dur="0.25s" fill="freeze" to="0"/>	            <!-- The third and fourth animation elements are used for animate button : on press, on release -->                <animate id="button_0_body_pressed" attributeName="stroke" attributeType="XML" begin="indefinite" dur="0.25s" fill="freeze" to="red"/>                <animate id="button_0_body_released" attributeName="stroke" attributeType="XML" begin="indefinite" dur="0.25s"  fill="freeze" to="rgb(255,165,0)"/>            </rect>        </g>        <g>            <text id="button_0_stext" x="27.999992" y="20.0" fill="black" font-size="15">		OK</text>            <text display="none">type=shadow_text</text>        </g>        <g>            <text id="button_0_text" x="23" y="21" fill="none" font-size="18">		OK</text>            <text display="none">type=text</text>        </g>        </g>
+</svg>
