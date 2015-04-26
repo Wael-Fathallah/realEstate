@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Random;
 import javax.microedition.io.Connector;
 import javax.microedition.io.ContentConnection;
 import javax.microedition.io.HttpConnection;
@@ -62,6 +63,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private Alert   errorAlert;
     private Form    XForm;
     private Image   appIcon;
+    private Command back = new Command("Back", Command.EXIT, 0);;
     private String  runState;
     private Form    connectForm;
     private StringItem messageLabel;
@@ -101,13 +103,13 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private TextField   numMob;
     private TextField   statM;
     private Command     uploadC;
+    private Command     backC;
     private String      imageName;
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" MailInbox Screen">
     private Boitemessages[] boitemessages;
     private List        lstB;
-    private Command     back;
     private Command     inbox;
     private Command     sent;
     private Command     Compose;
@@ -180,7 +182,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         display.setCurrent(wellcomeSegment(myName));   
         }else{
         display.setCurrent(loginSegment());}
-
+        
     }
     
     public void pauseApp() {
@@ -217,6 +219,12 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         if (c == back && d == oneMail) {
             display.setCurrent(lstB);
         }
+        //Back
+        if (c == backC) {
+            
+            display.setCurrent(lastDisplayed);
+        }
+        
         // </editor-fold> 
         
         // <editor-fold defaultstate="collapsed" desc=" Login Command ">
@@ -336,7 +344,6 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                         try {              
                             UtilisateurHandler(lastDisplayed);
                         } catch (IOException ex) {
-                            ex.printStackTrace();
                         }
                     }
                 }).start();       
@@ -358,7 +365,6 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                         try {              
                             BoitemessagesHandler(lastDisplayed);
                         } catch (IOException ex) {
-                            ex.printStackTrace();
                         }
                     }
                 }).start();
@@ -374,7 +380,6 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                         try {              
                             BoitemessagesHandler(lastDisplayed);
                         } catch (IOException ex) {
-                            ex.printStackTrace();
                         }
                     }
                 }).start();       
@@ -420,15 +425,15 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 oneMail = new TextBox("From "+boitemessages[lstB.getSelectedIndex()].getNom_expediteur()+" "+   
                                         boitemessages[lstB.getSelectedIndex()].getPrenom_expediteur(), 
                                         boitemessages[lstB.getSelectedIndex()].getContenu(), 
-                                        200, TextField.ANY|TextField.UNEDITABLE);
+                                        200, TextField.UNEDITABLE);
            }else if("Sent".equals(runState)){
                 oneMail = new TextBox("To "+boitemessages[lstB.getSelectedIndex()].getNom_destinataire()+" "+   
                                         boitemessages[lstB.getSelectedIndex()].getPrenom_destinataire(), 
                                         boitemessages[lstB.getSelectedIndex()].getContenu(), 
-                                        200, TextField.ANY|TextField.UNEDITABLE);
+                                        200, TextField.UNEDITABLE);
            }
            oneMail.setCommandListener(this);
-           back = new Command("Back", Command.EXIT, 0);
+           
            oneMail.addCommand(back);
            display.setCurrent(oneMail);
         }
@@ -502,7 +507,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 
                 formO.append(item);
                 formO.setCommandListener(this);
-                back = new Command("Back", Command.EXIT, 0);
+                
                 formO.addCommand(back);
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -520,7 +525,6 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                         try {              
                             ArchiveHandler(lastDisplayed);
                         } catch (IOException ex) {
-                            ex.printStackTrace();
                         }
                     }
                 }).start();   
@@ -534,7 +538,6 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 ImageItem ii = new ImageItem(null, im, ImageItem.LAYOUT_DEFAULT, null);
                 formA.append(ii);
             } catch (IOException ex) {
-                ex.printStackTrace();
             }
             display.setCurrent(formA);
         }
@@ -553,7 +556,6 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 alert.setTimeout(Alert.FOREVER);
                 Display.getDisplay(this).setCurrent(alert);
             } catch (Exception e) {
-                e.printStackTrace();
             }
         }
         // </editor-fold> 
@@ -678,7 +680,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private Displayable statSegment(int[] data) {
         
         statDis = new PieChartCanvas(data);
-        back = new Command("Back", Command.EXIT, 0);
+        
 
         statDis.addCommand(back);
         statDis.setCommandListener(this);
@@ -691,7 +693,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         
         exit= new Command("Exit", Command.OK, 0);
         send= new Command("Send", Command.SCREEN, 0);
-        back   =   new Command("Back", Command.EXIT, 0);
+        
         inbox  =   new Command("Inbox", Command.OK, 0);
         sent   =   new Command("Sent", Command.OK, 0);
         bodyM = new TextBox("Compose a massege ", "", 200, TextField.ANY);
@@ -783,9 +785,9 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                     browser.append(fileName, fileIcon);
                 }
             }
-            
+            backC = new Command("Back", Command.EXIT, 0);
             browser.setSelectCommand(view);
-            //browser.addCommand(back);
+            browser.addCommand(backC);
             
             
             
@@ -795,7 +797,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             if (currDir != null) {
                 currDir.close();
             }
-            
+            lastDisplayed = display.getCurrent();
             Display.getDisplay(this).setCurrent(browser);
         } catch (IOException ioe) {
             ioe.printStackTrace();
@@ -854,7 +856,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             Hashtable params = new Hashtable();
             params.put("custom_param", "param_value");
             
-            
+            fileName = randomString()+fileName;
             HttpMultipartRequest req = new HttpMultipartRequest(
                     "http://localhost/image/upM.php",
                     params,
@@ -943,7 +945,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 }
             }else{
                 lstB = new List("Sent", List.IMPLICIT);
-                
+                lstB.setCommandListener(this);
                 if (boitemessages.length > 0) {
                     
                     for (int i = 0; i < boitemessages.length; i++) {
@@ -955,7 +957,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 
             }
             
-            back   =   new Command("Back", Command.EXIT, 0);
+            
             inbox  =   new Command("Inbox", Command.OK, 0);
             Compose   =   new Command("Compose", Command.OK, 0);
             sent   =   new Command("Sent", Command.OK, 0);
@@ -965,7 +967,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             lstB.addCommand(sent);
             lstB.addCommand(Compose);
             lstB.addCommand(exit);
-            lstB.setCommandListener(this);
+            
             display.setCurrent(lstB);
         } catch (ParserConfigurationException ex) {
             problemCallMe(lastDisplayeb);          
@@ -997,7 +999,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                                     +utilisateur[i].getMail(), null);
                         }
                     }
-                back   =   new Command("Back", Command.EXIT, 0);
+               
                 exit   =   new Command("Exit", Command.OK, 0);
                 
                 lstC.addCommand(back);
@@ -1194,8 +1196,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             // get a parser object
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
             // get an InputStream from somewhere (could be HttpConnection, for example)
-            HttpConnection hc = (HttpConnection) Connector.open("http://localhost/pi_mob_dao/Offre/Stat/getXmlStat1.php");
-            DataInputStream dis = new DataInputStream(hc.openDataInputStream());
+            hc = (HttpConnection) Connector.open("http://localhost/pi_mob_dao/Offre/Stat/getXmlStat1.php");
+            dis = new DataInputStream(hc.openDataInputStream());
             parser.parse(dis, Stat1Handler);
             // display the result
             stat1 = Stat1Handler.getStat1();
@@ -1216,6 +1218,17 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         errorAlert = new Alert("Error ", "No Connection", null,AlertType.ERROR);
         errorAlert.setTimeout(3000);
         display.setCurrent(errorAlert);
+    }
+    // </editor-fold> 
+    
+    // <editor-fold defaultstate="collapsed" desc=" randomString ">
+    String randomString( ) 
+    {   String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        Random rnd = new Random();
+        sb = new StringBuffer( 8 );
+        for( int i = 0; i < 8; i++ ) 
+          sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
+        return sb.toString();
     }
     // </editor-fold> 
     
