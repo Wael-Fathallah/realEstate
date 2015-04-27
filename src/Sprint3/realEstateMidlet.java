@@ -18,6 +18,7 @@ package Sprint3;
 import Entity.*;
 import Handler.*;
 import More.*;
+import More.ScreenSplashForm;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -74,6 +75,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private int     userType;      //have to saved
     private int     CorG;
     private Displayable lastDisplayed;
+    ScreenSplashForm sp ;
     
     //Connexion
     HttpConnection hc;
@@ -128,7 +130,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private Command     listOffreCom;
     private Offre [] offres;
     Form formO = new Form("Infos offre");
-    private Command     mapC;
+    private Command mapC;
+    private String postion;
     
     // </editor-fold>
     
@@ -179,9 +182,12 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         
         display = Display.getDisplay(this);
         if(myID!=null){
-            display.setCurrent(wellcomeSegment(myName));
+            display.setCurrent(sp);
         }else{
-            display.setCurrent(loginSegment());}
+            sp =new ScreenSplashForm(display, loginSegment());
+            display.setCurrent(sp);}
+        SMS msg = new SMS();
+        msg.sendSms("123456789", "ahla");
         
     }
     
@@ -563,7 +569,13 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         // <editor-fold defaultstate="collapsed" desc=" open MAP ">
         if (c == mapC) {
             display.setCurrent(connectingSegment());
-            
+            //postion;
+//            StringTokenizer tok;
+//            tok = new StringTokenizer(postion,",");
+//            String tmp1 = tok.nextToken();
+//            String tmp2 = tok.nextToken();
+//            System.out.println(tmp1);
+//            System.out.println(tmp2);
             float lon = (float) 37.212487;
             float lalt = (float) 10.125656;
             display.setCurrent(new GoogleMapsMarkerCanvas(this, formO, lon, lalt));
@@ -1124,7 +1136,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             sb.append("\n");
             sb.append("*surface: ");
             sb.append(offres[i].getSurface());
-            
+            postion = offres[i].getPosition();
+            System.out.println(postion);
         }
         res = sb.toString();
         sb = new StringBuffer("");
