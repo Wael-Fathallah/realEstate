@@ -33,6 +33,7 @@ import javax.microedition.io.file.FileConnection;
 import javax.microedition.io.file.FileSystemRegistry;
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.AlertType;
+import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Choice;
 import javax.microedition.lcdui.ChoiceGroup;
 import javax.microedition.lcdui.Command;
@@ -40,6 +41,7 @@ import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
+import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.ImageItem;
 import javax.microedition.lcdui.Item;
@@ -185,6 +187,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             display.setCurrent(sp);
         }else{
             sp =new ScreenSplashForm(display, loginSegment());
+            
             display.setCurrent(sp);}
         SMS msg = new SMS();
         msg.sendSms("123456789", "ahla");
@@ -207,7 +210,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         }
         //Back
         if (c == back && d != inscrireForm && d != formA && d != formO && d != oneMail) {
-            display.setCurrent(wellcomeSegment(myName));
+            //display.setCurrent(wellcomeSegment(myName));
+            display.setCurrent(new Hello());
         }
         //Back
         if (c == back && d == inscrireForm) {
@@ -258,17 +262,26 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                             CorG = 2;
                             myID = tok.nextToken();
                             myName = tok.nextToken();
-                            display.setCurrent(wellcomeSegment(myName));
+                            //display.setCurrent(wellcomeSegment(myName));
+                            Hello x = new Hello();
+                            x.setTitle("Welcome " + myName);
+                            display.setCurrent(x);
                         }else if ("OK1".equals(tmp)) {
                             CorG = 1;
                             myID = tok.nextToken();
                             myName = tok.nextToken();
-                            display.setCurrent(wellcomeSegment(myName));
+                            //display.setCurrent(wellcomeSegment(myName));
+                            Hello x = new Hello();
+                            x.setTitle("Welcome " + myName);
+                            display.setCurrent(x);
                         }else if ("OKA".equals(tmp)) {
                             CorG = 0;
                             myID = "0";
                             myName = "Admin";
-                            display.setCurrent(wellcomeSegment(myName));
+                            //display.setCurrent(wellcomeSegment(myName));
+                            Hello x = new Hello();
+                            x.setTitle("Welcome " + myName);
+                            display.setCurrent(x);
                         }else{
                             display.setCurrent(loginSegment());
                             errorAlert = new Alert("Error", sb.toString().trim(), null,AlertType.ERROR);
@@ -586,7 +599,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     // <editor-fold defaultstate="collapsed" desc=" Segments Block ">
     
     // <editor-fold defaultstate="collapsed" desc=" loginSegment ">
-    private Form loginSegment() {
+    protected Form loginSegment() {
         
         email = new TextField("Email :", "", 50, TextField.ANY);
         password = new TextField("Password :", "", 50, TextField.PASSWORD);
@@ -1242,6 +1255,177 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     for( int i = 0; i < 8; i++ )
         sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
     return sb.toString();
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" wellcomeCanvas ">
+    class Hello extends Canvas implements Runnable {
+        
+        private Image image;
+        private Image image1;
+        private Image image2;
+        private Image image3;
+        private Image image4;
+        private Display d;
+        private MIDlet m;
+        private Image image5;
+        private Image image6;
+        private Image image7;
+        private Image image8;
+        private Image image9;
+        private Image image10;
+        private Image image11;
+        private Image image12;
+        
+        /**
+         * The constructor attempts to load the named image and begins a timeout
+         * thread. The splash screen can be dismissed with a key press,
+         * a pointer press, or a timeout
+         * @param offreMidlet instance of MIDlet
+         */
+        public Hello(){
+            
+            try{
+                image = Image.createImage("/icons/backscreen.png");
+                image1 = Image.createImage("/icons/adminsx.png");
+                image2 = Image.createImage("/icons/gerantx.png");
+                image3 = Image.createImage("/icons/mailx.png");
+                image4 = Image.createImage("/icons/clientx.png");
+                image5 = Image.createImage("/icons/archx.png");
+                image6 = Image.createImage("/icons/statx.png");
+                image7 = Image.createImage("/icons/adminsxc.png");
+                image8 = Image.createImage("/icons/gerantxc_1.png");
+                image9 = Image.createImage("/icons/mailxc.png");
+                image10 = Image.createImage("/icons/clientxc.png");
+                image11 = Image.createImage("/icons/archxc.png");
+                image12 = Image.createImage("/icons/statxc.png");
+                Thread t = new Thread(this);
+                t.start();
+            }
+            catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+        int width = getWidth();
+        int height = getHeight();
+        int x =1;
+        /**
+         * Paints the image centered on the screen.
+         */
+        public void paint(Graphics g) {
+            
+            
+            //set background color to overdraw what ever was previously displayed
+            g.setColor(0x000000);
+            g.fillRect(0,0, width, height);
+            g.drawImage(image, 0, 0,0);
+            
+            g.drawImage(image1, 15, 5,0);
+            g.drawImage(image2, width-84-15, 5,0);
+            
+            g.drawImage(image3, 15, 85+2+5,0);
+            g.drawImage(image4, width-84-15, 85+2+5,0);
+            
+            g.drawImage(image5, 15, 85+85+4+5,0);
+            g.drawImage(image6, width-84-15, 85+85+4+5,0);
+            if (x==1){
+                g.drawImage(image7, 15, 3,0);
+            }
+            if (x==2){
+                g.drawImage(image8, width-84-15, 3,0);
+            }
+            if (x==3){
+                g.drawImage(image9, 15, 85+2+3,0);
+            }
+            if (x==4){
+                g.drawImage(image10, width-84-15, 85+2+3,0);
+            }
+            if (x==5){
+                g.drawImage(image11, 15, 85+85+4+3,0);
+            }
+            if (x==6){
+                g.drawImage(image12, width-84-15, 85+85+4+3,0);
+            }
+        }
+        
+        
+        
+        public void dismiss() {
+            //mid.setCurrent(mxc);
+        }
+        
+        /**
+         * Default timeout with thread
+         */
+        public void run() {
+            try {
+                Thread.sleep(3000);//set for 3 seconds
+            }
+            catch (InterruptedException e) {
+                System.out.println("InterruptedException");
+                e.printStackTrace();
+            }
+            dismiss();
+        }
+        
+        /**
+         * A key release event triggers the dismiss()
+         * method to be called.
+         */
+        
+        protected void keyPressed(int keyCode) {
+            
+            int gameAction = getGameAction(keyCode);
+            String key=getKeyName(keyCode);
+            if(gameAction == RIGHT && x<6){
+                x+=1;
+            }else if(gameAction == LEFT && x>1){
+                x-=1;
+            }else if(gameAction == DOWN && x<5){
+                x+=2;
+            }else if(gameAction == UP && x>2){
+                x-=2;
+            }
+            repaint();
+        }
+        
+        protected void keyReleased(int keyCode) {
+            int gameAction = getGameAction(keyCode);
+            String key=getKeyName(keyCode);
+            if(gameAction == FIRE){
+                if(x==3){
+                    runState = "Inbox";
+                    lastDisplayed = display.getCurrent();
+                    urlX="Boitemessages/getXmlMessage.php?myID="+myID+"&IorS=I&mail="+userName+"&pass="+userPass+"&user="+userType;
+                    display.setCurrent(connectingSegment());
+                    new Thread(new Runnable() {
+                        public void run() {
+                            try {
+                                BoitemessagesHandler(lastDisplayed);
+                            } catch (IOException ex) {
+                            }
+                        }
+                    }).start();
+                } else if (x == 6){
+                    lastDisplayed = display.getCurrent();
+                    new Thread(new Runnable() {
+                        public void run() {
+                            try {
+                                stat1 = Stat1Handler(lastDisplayed);
+                                Integer.parseInt(stat1[0].getV5());
+                                System.err.println(stat1[0].getV4());
+                                int[] data = { Integer.parseInt(stat1[0].getV5()), Integer.parseInt(stat1[0].getV4()),
+                                    Integer.parseInt(stat1[0].getV3()), Integer.parseInt(stat1[0].getV2()),
+                                    Integer.parseInt(stat1[0].getV1()) };
+                                display.setCurrent(statSegment(data));
+                            } catch (IOException ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    }).start();
+                }
+            }
+        }
     }
     // </editor-fold>
     
