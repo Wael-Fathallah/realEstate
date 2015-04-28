@@ -27,21 +27,21 @@ public class Offre {
     private String  dispobileAPartir;
     private String  description;
     private int     etage;
-    private boolean ascenceur;
-    private boolean cuisineEquipe;
-    private boolean jardin;
-    private boolean entreeIndep;
-    private boolean gazDeVille;
-    private boolean chauffage;
-    private boolean meuble;
-    private boolean climatisation;
+    private int ascenceur;
+    private int cuisineEquipe;
+    private int jardin;
+    private int entreeIndep;
+    private int gazDeVille;
+    private int chauffage;
+    private int meuble;
+    private int climatisation;
     private float   note;
     private String  urlImage;
     private String  position;
 
     //Constructeur
     public Offre(){}
-    public Offre(int Id, int id_gerant, int id_adresse, String etat, String typeImmob, String nature, String payement, float surface, int nbrPiece, String datePublication, String dateModification, String dispobileAPartir, String description, int etage, boolean ascenceur, boolean cuisineEquipe, boolean jardin, boolean entreeIndep, boolean gazDeVille, boolean chauffage, boolean meuble, boolean climatisation, float note, String urlImage, String  position) {
+    public Offre(int Id, int id_gerant, int id_adresse, String etat, String typeImmob, String nature, String payement, float surface, int nbrPiece, String datePublication, String dateModification, String dispobileAPartir, String description, int etage, int ascenceur, int cuisineEquipe, int jardin, int entreeIndep, int gazDeVille, int chauffage, int meuble, int climatisation, float note, String urlImage, String  position) {
         this.Id = Id;
         this.id_gerant = id_gerant;
         this.id_adresse = id_adresse;
@@ -181,67 +181,67 @@ public class Offre {
         this.etage = etage;
     }
 
-    public boolean isAscenceur() {
+    public int isAscenceur() {
         return ascenceur;
     }
 
-    public void setAscenceur(boolean ascenceur) {
+    public void setAscenceur(int ascenceur) {
         this.ascenceur = ascenceur;
     }
 
-    public boolean isCuisineEquipe() {
+    public int isCuisineEquipe() {
         return cuisineEquipe;
     }
 
-    public void setCuisineEquipe(boolean cuisineEquipe) {
+    public void setCuisineEquipe(int cuisineEquipe) {
         this.cuisineEquipe = cuisineEquipe;
     }
 
-    public boolean isJardin() {
+    public int isJardin() {
         return jardin;
     }
 
-    public void setJardin(boolean jardin) {
+    public void setJardin(int jardin) {
         this.jardin = jardin;
     }
 
-    public boolean isEntreeIndep() {
+    public int isEntreeIndep() {
         return entreeIndep;
     }
 
-    public void setEntreeIndep(boolean entreeIndep) {
+    public void setEntreeIndep(int entreeIndep) {
         this.entreeIndep = entreeIndep;
     }
 
-    public boolean isGazDeVille() {
+    public int isGazDeVille() {
         return gazDeVille;
     }
 
-    public void setGazDeVille(boolean gazDeVille) {
+    public void setGazDeVille(int gazDeVille) {
         this.gazDeVille = gazDeVille;
     }
 
-    public boolean isChauffage() {
+    public int isChauffage() {
         return chauffage;
     }
 
-    public void setChauffage(boolean chauffage) {
+    public void setChauffage(int chauffage) {
         this.chauffage = chauffage;
     }
 
-    public boolean isMeuble() {
+    public int isMeuble() {
         return meuble;
     }
 
-    public void setMeuble(boolean meuble) {
+    public void setMeuble(int meuble) {
         this.meuble = meuble;
     }
 
-    public boolean isClimatisation() {
+    public int isClimatisation() {
         return climatisation;
     }
 
-    public void setClimatisation(boolean climatisation) {
+    public void setClimatisation(int climatisation) {
         this.climatisation = climatisation;
     }
 

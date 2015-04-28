@@ -5,11 +5,12 @@
  */
 package Sprint3;
 
-import Entity.Offre;
-import Handler.OffreHandler;
+import Entity.*;
+import Handler.*;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+
 import javax.microedition.io.Connector;
 import javax.microedition.io.ContentConnection;
 import javax.microedition.io.HttpConnection;
@@ -22,6 +23,7 @@ import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.ImageItem;
 import javax.microedition.lcdui.List;
+
 import javax.microedition.midlet.*;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -33,11 +35,13 @@ public class offreMidlet extends MIDlet implements CommandListener, Runnable {
 
     Display disp = Display.getDisplay(this);
     
+    
     Command cmdParse = new Command("offres", Command.SCREEN, 0);
     Command cmdBack = new Command("Back", Command.BACK, 0);
     Command cmdDelete=new Command("Delete",Command.OK,0);
     
     Offre[] offres;
+    int selectedIndex;
     
     List lst = new List("offres", List.IMPLICIT);
     
@@ -50,6 +54,7 @@ public class offreMidlet extends MIDlet implements CommandListener, Runnable {
     private Canvas[] canvases;
 
     public void startApp() {
+ 
         f.append("Click Offres to get your offres_list");
         f.addCommand(cmdParse);
         f.setCommandListener(this);
@@ -76,6 +81,7 @@ public class offreMidlet extends MIDlet implements CommandListener, Runnable {
         }
 
         if (c == List.SELECT_COMMAND) {
+            this.selectedIndex=lst.getSelectedIndex();
             form.append("Informations Offre: \n");
             form.append(showOffre(lst.getSelectedIndex()));
             try {
@@ -92,16 +98,25 @@ public class offreMidlet extends MIDlet implements CommandListener, Runnable {
             form.deleteAll();
             disp.setCurrent(lst);
         }
+        if(c==cmdDelete){
+            try {
+                this.deleteOffre(selectedIndex);
+                lst.delete(selectedIndex);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 
     public void run() {
         try {
             // this will handle our XML
             OffreHandler offresHandler = new OffreHandler();
+           
             // get a parser object
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
             // get an InputStream from somewhere (could be HttpConnection, for example)
-            HttpConnection hc = (HttpConnection) Connector.open("http://localhost/pidev_sprint2/web/app_dev.php/v1/offres.xml?limit=2");
+            HttpConnection hc = (HttpConnection) Connector.open("http://localhost/pidev_sprint2/web/app_dev.php/v1/offres.xml?limit=10");
             DataInputStream dis = new DataInputStream(hc.openDataInputStream());
             parser.parse(dis, offresHandler);
             // display the result
@@ -114,7 +129,7 @@ public class offreMidlet extends MIDlet implements CommandListener, Runnable {
 
                 }
             }
-
+          
         } catch (Exception e) {
             System.out.println("Exception:" + e.toString());
         }
@@ -202,5 +217,14 @@ public class offreMidlet extends MIDlet implements CommandListener, Runnable {
             }
         }
         return (im == null ? null : im);
+    }
+    
+    public void deleteOffre(int i) throws IOException{
+        HttpConnection hc = (HttpConnection) Connector.open("http://localhost/pidev_sprint2/web/app_dev.php/v1/os/"+offres[i].getId()+"/offres.json");;
+        hc.setRequestMethod("POST");
+        System.out.println(hc.getResponseMessage()); 
+         
+         System.out.println("http://localhost/pidev_sprint2/web/app_dev.php/v1/os/"+offres[i].getId()+"/offres.json");
+       
     }
 }

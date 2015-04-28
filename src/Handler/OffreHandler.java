@@ -35,10 +35,10 @@ public class OffreHandler extends DefaultHandler{
      String  descriptionTag="close";
      String     etageTag="close";
      String ascenceurTag="close";
-     String cuisineEquipeTag="close";
+     String cuisineequipeTag="close";
      String jardinTag="close";
-     String entreeIndepTag="close";
-     String gazDeVilleTag="close";
+     String entreeindepTag="close";
+     String gazdevilleTag="close";
      String chauffageTag="close";
      String meubleTag="close";
      String climatisationTag="close";
@@ -129,6 +129,50 @@ public class OffreHandler extends DefaultHandler{
             String description=strB.toString();
             currentOffre.setDescription(description);
          }
+        else if (qName.equals("position")) {  
+            String position=strB.toString();
+            currentOffre.setPosition(position);
+         }
+        else if (qName.equals("etage")) {  
+            String etage=strB.toString();
+            currentOffre.setEtage(Integer.parseInt(etage));
+         }
+        else if (qName.equals("ascenceur")) {  
+            String ascenceur=strB.toString();
+            currentOffre.setAscenceur(Integer.parseInt(ascenceur));
+         }
+        else if (qName.equals("cuisineequipe")) {  
+            String cuisineequipe=strB.toString();
+            currentOffre.setCuisineEquipe(Integer.parseInt(cuisineequipe));
+         }
+        else if (qName.equals("jardin")) {  
+            String jardin=strB.toString();
+            currentOffre.setJardin(Integer.parseInt(jardin));
+         }
+        else if (qName.equals("entreeindep")) {  
+            String entreeindep=strB.toString();
+            currentOffre.setEntreeIndep(Integer.parseInt(entreeindep));
+         }
+        else if (qName.equals("gazdeville")) {  
+            String gazdeville=strB.toString();
+            currentOffre.setEntreeIndep(Integer.parseInt(gazdeville));
+         }
+        else if (qName.equals("chauffage")) {  
+            String chauffage=strB.toString();
+            currentOffre.setEntreeIndep(Integer.parseInt(chauffage));
+         }
+        else if (qName.equals("meuble")) {  
+            String meuble=strB.toString();
+            currentOffre.setMeuble(Integer.parseInt(meuble));
+         }
+        else if (qName.equals("climatisation")) {  
+            String climatisation=strB.toString();
+            currentOffre.setClimatisation(Integer.parseInt(climatisation));
+         }
+        else if (qName.equals("note")) {  
+            String note=strB.toString();
+            currentOffre.setNote(Integer.parseInt(note));
+         }
         
         
         
@@ -177,6 +221,51 @@ public class OffreHandler extends DefaultHandler{
                     if(descriptionTag.equals("open")){
                         strB.append(ch,start,length);
                     }
+             else 
+                    if(positionTag.equals("open")){
+                        strB.append(ch,start,length);
+                    }
+             else 
+                    if(etageTag.equals("open")){
+                        strB.append(ch,start,length);
+                    }
+             else 
+                    if(ascenceurTag.equals("open")){
+                        strB.append(ch,start,length);
+                    }
+             else 
+                    if(cuisineequipeTag.equals("open")){
+                        strB.append(ch,start,length);
+                    }
+             else 
+                    if(jardinTag.equals("open")){
+                        strB.append(ch,start,length);
+                    }
+             else 
+                    if(entreeindepTag.equals("open")){
+                        strB.append(ch,start,length);
+                    }
+             else 
+                    if(gazdevilleTag.equals("open")){
+                        strB.append(ch,start,length);
+                    }
+             else 
+                    if(chauffageTag.equals("open")){
+                        strB.append(ch,start,length);
+                    }
+             else 
+                    if(meubleTag.equals("open")){
+                        strB.append(ch,start,length);
+                    }
+             else 
+                    if(climatisationTag.equals("open")){
+                        strB.append(ch,start,length);
+                    }
+             else 
+                    if(noteTag.equals("open")){
+                        strB.append(ch,start,length);
+                    }
+            
             
             
         }
