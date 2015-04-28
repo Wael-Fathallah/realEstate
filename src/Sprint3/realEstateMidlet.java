@@ -151,7 +151,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     Form formA = new Form("Infos offre");
     
     // </editor-fold>
-    
+   
     // <editor-fold defaultstate="collapsed" desc=" Stat Screen">
     
     private Stat1 [] stat1;
