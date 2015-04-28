@@ -78,7 +78,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private int     CorG;
     private Displayable lastDisplayed;
     ScreenSplashForm sp ;
-    
+    private Hello x = new Hello();
     //Connexion
     HttpConnection hc;
     DataInputStream dis;
@@ -211,7 +211,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         //Back
         if (c == back && d != inscrireForm && d != formA && d != formO && d != oneMail) {
             //display.setCurrent(wellcomeSegment(myName));
-            display.setCurrent(new Hello());
+            display.setCurrent(x);
         }
         //Back
         if (c == back && d == inscrireForm) {
@@ -263,7 +263,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                             myID = tok.nextToken();
                             myName = tok.nextToken();
                             //display.setCurrent(wellcomeSegment(myName));
-                            Hello x = new Hello();
+                            
                             x.setTitle("Welcome " + myName);
                             display.setCurrent(x);
                         }else if ("OK1".equals(tmp)) {
@@ -271,7 +271,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                             myID = tok.nextToken();
                             myName = tok.nextToken();
                             //display.setCurrent(wellcomeSegment(myName));
-                            Hello x = new Hello();
+                            
                             x.setTitle("Welcome " + myName);
                             display.setCurrent(x);
                         }else if ("OKA".equals(tmp)) {
@@ -279,7 +279,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                             myID = "0";
                             myName = "Admin";
                             //display.setCurrent(wellcomeSegment(myName));
-                            Hello x = new Hello();
+                            
                             x.setTitle("Welcome " + myName);
                             display.setCurrent(x);
                         }else{
@@ -1276,6 +1276,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         private Image image10;
         private Image image11;
         private Image image12;
+        private Image image13;
+        private Image image14;
         
         /**
          * The constructor attempts to load the named image and begins a timeout
@@ -1299,6 +1301,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 image10 = Image.createImage("/icons/clientxc.png");
                 image11 = Image.createImage("/icons/archxc.png");
                 image12 = Image.createImage("/icons/statxc.png");
+                image13 = Image.createImage("/icons/offrex.png");
+                image14 = Image.createImage("/icons/offrexc.png");
                 Thread t = new Thread(this);
                 t.start();
             }
@@ -1309,6 +1313,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         int width = getWidth();
         int height = getHeight();
         int x =1;
+        int dec =0;
         /**
          * Paints the image centered on the screen.
          */
@@ -1316,35 +1321,45 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             
             
             //set background color to overdraw what ever was previously displayed
+            if(x==7){
+                dec=-85;
+            }else{
+                dec=0;
+            }
             g.setColor(0x000000);
             g.fillRect(0,0, width, height);
             g.drawImage(image, 0, 0,0);
             
-            g.drawImage(image1, 15, 5,0);
-            g.drawImage(image2, width-84-15, 5,0);
+            g.drawImage(image1, 15, 5+dec,0);
+            g.drawImage(image2, width-84-15, 5+dec,0);
             
-            g.drawImage(image3, 15, 85+2+5,0);
-            g.drawImage(image4, width-84-15, 85+2+5,0);
+            g.drawImage(image3, 15, 85+2+5+dec,0);
+            g.drawImage(image4, width-84-15, 85+2+5+dec,0);
             
-            g.drawImage(image5, 15, 85+85+4+5,0);
-            g.drawImage(image6, width-84-15, 85+85+4+5,0);
+            g.drawImage(image5, 15, 85+85+4+5+dec,0);
+            g.drawImage(image6, width-84-15, 85+85+4+5+dec,0);
+            
+            g.drawImage(image13, 15, 170+85+6+5+dec,0);
             if (x==1){
-                g.drawImage(image7, 15, 3,0);
+                g.drawImage(image7, 15, 3+dec,0);
             }
             if (x==2){
-                g.drawImage(image8, width-84-15, 3,0);
+                g.drawImage(image8, width-84-15, 3+dec,0);
             }
             if (x==3){
-                g.drawImage(image9, 15, 85+2+3,0);
+                g.drawImage(image9, 15, 85+2+3+dec,0);
             }
             if (x==4){
-                g.drawImage(image10, width-84-15, 85+2+3,0);
+                g.drawImage(image10, width-84-15, 85+2+3+dec,0);
             }
             if (x==5){
-                g.drawImage(image11, 15, 85+85+4+3,0);
+                g.drawImage(image11, 15, 85+85+4+3+dec,0);
             }
             if (x==6){
-                g.drawImage(image12, width-84-15, 85+85+4+3,0);
+                g.drawImage(image12, width-84-15, 85+85+4+3+dec,0);
+            }
+            if (x==7){
+                g.drawImage(image14, 15, 85+85+85+6+3+dec,0);
             }
         }
         
@@ -1377,11 +1392,11 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             
             int gameAction = getGameAction(keyCode);
             String key=getKeyName(keyCode);
-            if(gameAction == RIGHT && x<6){
+            if(gameAction == RIGHT && x<7){
                 x+=1;
             }else if(gameAction == LEFT && x>1){
                 x-=1;
-            }else if(gameAction == DOWN && x<5){
+            }else if(gameAction == DOWN && x<6){
                 x+=2;
             }else if(gameAction == UP && x>2){
                 x-=2;
