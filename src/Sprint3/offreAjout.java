@@ -30,6 +30,10 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.SAXException;
 import java.util.*;
 
+import javax.microedition.lcdui.Item;
+import javax.microedition.lcdui.ItemStateListener;
+import javax.microedition.lcdui.StringItem;
+
 
 /**
  * @author seif
@@ -58,6 +62,7 @@ public class offreAjout extends MIDlet implements CommandListener, Runnable {
     TextField tfdescription = new TextField("Description", null, 500, TextField.ANY);
 
     ChoiceGroup equipementGp = new ChoiceGroup("Select Equipement ", Choice.MULTIPLE);
+    String equipSelected="";
 
     Command cmdValider = new Command("valider", Command.SCREEN, 0);
     Command cmdBack = new Command("cmdBack", Command.BACK, 0);
@@ -123,14 +128,16 @@ public class offreAjout extends MIDlet implements CommandListener, Runnable {
         lstAdresse.setCommandListener(this);
 
         //ChoiceGroupe
-        equipementGp.append("ascneceur", null);
-        equipementGp.append("cuisineEquipe", null);
-        equipementGp.append("jardin", null);
+        
+        equipementGp.append("Ascenseur", null);
+        equipementGp.append("Cuisine", null);
+        equipementGp.append("Jardin", null);
         equipementGp.append("entreeIndep", null);
         equipementGp.append("gazDeVille", null);
-        equipementGp.append("chauffage", null);
-        equipementGp.append("meuble", null);
+        equipementGp.append("Chauffage", null);
+        equipementGp.append("Meuble", null);
         equipementGp.append("climatisation", null);
+        
 
         f1.append(tfpayement);
         f1.append(tfsurface);
@@ -171,8 +178,16 @@ public class offreAjout extends MIDlet implements CommandListener, Runnable {
             disp.setCurrent(f2);
         }
         if (c == cmdNextCode) {
+            
             disp.setCurrent(lstAdresse);
+            boolean selected[] = new boolean[equipementGp.size()];
+            equipSelected="";
+            equipementGp.getSelectedFlags(selected);
+             for (int i = 0; i < equipementGp.size(); i++)
+                 equipSelected += "&"+equipementGp.getString(i) + (selected[i] ? "=1" : "=0");
+            
         }
+        
         if (c == cmdValider) {
             Thread th = new Thread(this);
             th.start();
@@ -180,20 +195,26 @@ public class offreAjout extends MIDlet implements CommandListener, Runnable {
         if (c == this.lstAdresse.SELECT_COMMAND) {
 
             this.code = lstAdresse.getString(lstAdresse.getSelectedIndex());
-
         }
-
+ 
     }
+    
+ 
 
     public void run() {
         try {
-            
-            hc = (HttpConnection) Connector.open(url + "?prix=" + tfpayement.getString().trim() + "&nbrpiece=" + tfnbrPiece.getString().trim()
+          
+           
+          HttpConnection hc1 = (HttpConnection) Connector.open(url + "?prix=" + tfpayement.getString().trim() + "&nbrpiece=" + tfnbrPiece.getString().trim()
                     + "&surface=" + tfsurface.getString().trim() + "&id_gerant=1" + "&etat=" + etatList.getString(etatList.getSelectedIndex())
                     + "&nature=" + natureList.getString(natureList.getSelectedIndex()) + "&typeimmob=" + typeImmobList.getString(typeImmobList.getSelectedIndex())
-                    + "&urlImage=http://url" + "&code=" + this.code + "&description=" + tfdescription.getString().trim()
-            );            
+                    + "&urlImage=http://url" + "&code=" + this.code + "&description=" + tfdescription.getString().trim()+equipSelected
+            );   
           
+            hc1.setRequestMethod("POST");
+            
+            System.out.println(hc1.getResponseMessage());
+           
              Alert alert = new Alert("Success",
                 "Votre offre est ajouté  !",
                 null, AlertType.CONFIRMATION);
