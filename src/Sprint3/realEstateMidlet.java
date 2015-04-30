@@ -118,8 +118,13 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private Command     sent;
     private Command     Compose;
     private Command     send;
+    private Command     suppMess;
+    private Command     findMess;
+    private Command     openFindMessBox;
+    private TextBox     findMessBox;
     private TextBox     bodyM;
     private TextBox     oneMail;
+    private String      oneMailId;
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Stat Screen">
@@ -131,10 +136,12 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private List        lstO;
     private Command     listOffreCom;
     private Offre [] offres;
-    Form formO = new Form("Infos offre");
+    Form formO ;
     private Command mapC;
+    private Command rateC;
     private String postion;
-    
+    private Displayable rateDisplayable;
+    private int idOneOffre;
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Client Screen">
@@ -148,13 +155,14 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private List        lstA;
     private Command     archiveCom;
     private Archive [] archives;
-    Form formA = new Form("Infos offre");
+    Form formA ;
     
     // </editor-fold>
    
     // <editor-fold defaultstate="collapsed" desc=" Stat Screen">
     
     private Stat1 [] stat1;
+    
     
     // </editor-fold>
     
@@ -186,8 +194,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         if(myID!=null){
             display.setCurrent(sp);
         }else{
-            sp =new ScreenSplashForm(display, loginSegment());
-            
+            sp =new ScreenSplashForm(display, loginSegment());             
             display.setCurrent(sp);}
         SMS msg = new SMS();
         msg.sendSms("123456789", "ahla");
@@ -227,7 +234,15 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         }
         //Back
         if (c == back && d == oneMail) {
-            display.setCurrent(lstB);
+            if(runState=="Inbox"){
+            c=inbox;}
+            else {
+            c=sent;
+            }
+        }
+        //Back
+        if (c == back && d == rateDisplayable) {
+            display.setCurrent(lstO);
         }
         //Back
         if (c == backC) {
@@ -306,7 +321,11 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             if(CorG==2){
                 urlX="AUTH/regC.php?mail="+userName+"&pass="+userPass+"&nom="+nom.getString().trim()+"&prenom="+prenom.getString().trim()+"&stat="+"&imgurl="+imageName;
             }else{
-                urlX="AUTH/regC.php?mail="+userName+"&pass="+userPass+"&nom="+nom.getString().trim()+"&prenom="+prenom.getString().trim()+"&stat="+"&imgurl="+imageName;
+                urlX="AUTH/regG.php?mail="+userName+"&pass="+userPass+"&nom="+nom.getString().trim()+
+                        "&prenom="+prenom.getString().trim()+
+                        "&numMob="+numMob.getString().trim()+
+                        "&numFix="+numFix.getString().trim()+
+                        "&stat="+statM.getString().trim()+"&imgurl="+imageName;
             }
             display.setCurrent(connectingSegment());
             new Thread(new Runnable() {
@@ -323,7 +342,9 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                             tok = new StringTokenizer(sb.toString().trim(),"|");
                             tmp = tok.nextToken();
                             tmp = tok.nextToken();
-                            display.setCurrent(wellcomeSegment(myName));
+                            x.setTitle("Welcome " + myName);
+                            display.setCurrent(x);
+                            //display.setCurrent(wellcomeSegment(myName));
                             myID =tmp;
                             errorAlert = new Alert("Done", "Registration done with success", null,AlertType.INFO);
                             errorAlert.setTimeout(3000);
@@ -451,10 +472,63 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                         boitemessages[lstB.getSelectedIndex()].getContenu(),
                         200, TextField.UNEDITABLE);
             }
+            oneMailId = boitemessages[lstB.getSelectedIndex()].getId();
             oneMail.setCommandListener(this);
+            suppMess = new Command("Supprimer", Command.EXIT, 0);
             
             oneMail.addCommand(back);
+            oneMail.addCommand(suppMess);
             display.setCurrent(oneMail);
+        }
+        if (c == openFindMessBox) {
+            lastDisplayed = display.getCurrent();
+            display.setCurrent(FindSegment());
+        }
+        if(c == suppMess){
+            lastDisplayed = display.getCurrent();
+            urlX="Boitemessages/suppMessage.php?messId="+oneMailId;
+            new Thread(new Runnable() {
+                public void run() {
+                    
+                    
+                    if(setData(lastDisplayed)){
+                        String tmp = null;
+                        tmp = sb.toString().trim();
+                        if ("OKD".equals(tmp)) {
+                           
+                            
+                            errorAlert = new Alert("Done", "Delete done with success", null,AlertType.INFO);
+                            errorAlert.setTimeout(3000);
+                            display.setCurrent(errorAlert);
+                            
+                        }else{
+                         
+                            errorAlert = new Alert("Error", sb.toString().trim(), null,AlertType.ERROR);
+                            errorAlert.setTimeout(3000);
+                            display.setCurrent(errorAlert);
+                            System.out.println(sb.toString());
+                        }
+                    }
+                }
+            }).start();
+        }
+        if(c == findMess){
+
+            if("Inbox".equals(runState)){
+            urlX="Boitemessages/getFindXmlMessage.php?myID="+myID+"&IorS=I&fsffsf="+findMessBox.getString().trim();
+                
+            }else{    
+                urlX="Boitemessages/getFindXmlMessage.php?myID="+myID+"&IorS=S&fsffsf="+findMessBox.getString().trim();
+            }
+            display.setCurrent(connectingSegment());
+            new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        BoitemessagesHandler(lastDisplayed);
+                    } catch (IOException ex) {
+                    }
+                }
+            }).start();
         }
         // </editor-fold>
         
@@ -512,7 +586,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             }).start();
         }
         if (c == List.SELECT_COMMAND && d == lstO) {
-            
+            formO = new Form("Infos offre");
             formO.append("Informations Offre: \n");
             formO.append(showOffre(lstO.getSelectedIndex()));
             try {
@@ -520,11 +594,16 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 ImageItem ii = new ImageItem(null, im, ImageItem.LAYOUT_DEFAULT, null);
                 formO.append(ii);
                 mapC= new Command("Show MAP", Command.ITEM, 0);
+                rateC= new Command("Rate", Command.ITEM, 0);
                 StringItem item = new StringItem("", "Show MAP ", Item.BUTTON);
+                StringItem item1 = new StringItem("", "Rate ", Item.BUTTON);
                 item.setItemCommandListener(this);
                 item.setDefaultCommand(mapC);
+                item1.setItemCommandListener(this);
+                item1.setDefaultCommand(rateC);
                 
                 formO.append(item);
+                formO.append(item1);
                 formO.setCommandListener(this);
                 
                 formO.addCommand(back);
@@ -549,7 +628,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             }).start();
         }
         if (c == List.SELECT_COMMAND && d == lstA) {
-            
+            formA = new Form("Infos Archive");
             formA.append("Informations Archive: \n");
             formA.append(showArchive(lstA.getSelectedIndex()));
             try {
@@ -583,15 +662,29 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         if (c == mapC) {
             display.setCurrent(connectingSegment());
             //postion;
-//            StringTokenizer tok;
-//            tok = new StringTokenizer(postion,",");
-//            String tmp1 = tok.nextToken();
-//            String tmp2 = tok.nextToken();
-//            System.out.println(tmp1);
-//            System.out.println(tmp2);
-            float lon = (float) 37.212487;
-            float lalt = (float) 10.125656;
+            StringTokenizer tok;
+            tok = new StringTokenizer(postion,",");
+            String tmp1 = tok.nextToken();
+            String tmp2 = tok.nextToken();
+            
+            float lon = Float.valueOf(tmp1.trim()).floatValue();
+            float lalt = Float.valueOf(tmp2.trim()).floatValue();
+
             display.setCurrent(new GoogleMapsMarkerCanvas(this, formO, lon, lalt));
+        }
+        // </editor-fold>
+        
+        // <editor-fold defaultstate="collapsed" desc=" open Rate ">
+        if (c == rateC) {
+            display.setCurrent(connectingSegment());
+            System.out.println(idOneOffre);
+                System.out.println(myID);
+            Rating rr =new Rating(idOneOffre,myID);
+            rr.setTitle("Rating");
+            rr.addCommand(back);
+            rr.setCommandListener(this);
+            rateDisplayable = rr;
+            display.setCurrent(rateDisplayable);
         }
         // </editor-fold>
     }
@@ -666,7 +759,10 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         inscrireForm = new Form("Inscrire Gerant");
         next= new Command("S'inscrire", Command.EXIT, 0);
         exit= new Command("Exit", Command.OK, 0);
-        
+        uploadC= new Command("Uploud image", Command.ITEM, 0);
+        StringItem item = new StringItem("", "Uploud image ", Item.BUTTON);
+        item.setDefaultCommand(uploadC);
+        item.setItemCommandListener(this);
         inscrireForm.append(email);
         inscrireForm.append(password);
         inscrireForm.append(nom);
@@ -674,6 +770,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         inscrireForm.append(numMob);
         inscrireForm.append(numFix);
         inscrireForm.append(statM);
+        inscrireForm.append(item);
         inscrireForm.addCommand(next);
         inscrireForm.addCommand(exit);
         inscrireForm.setCommandListener(this);
@@ -730,6 +827,18 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         bodyM.addCommand(exit);
         bodyM.setCommandListener(this);
         return bodyM;
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" FindSegment ">
+    private TextBox FindSegment() {
+        
+        findMess= new Command("Find", Command.SCREEN, 0);
+        findMessBox = new TextBox("Type to find", "", 200, TextField.ANY);
+        findMessBox.addCommand(back);
+        findMessBox.addCommand(findMess);
+        findMessBox.setCommandListener(this);
+        return findMessBox;
     }
     // </editor-fold>
     
@@ -880,7 +989,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             
             Hashtable params = new Hashtable();
             params.put("custom_param", "param_value");
-            
+            String random = randomString();
+            System.out.println(random);
             fileName = randomString()+fileName;
             HttpMultipartRequest req = new HttpMultipartRequest(
                     "http://localhost/image/upM.php",
@@ -987,10 +1097,12 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             Compose   =   new Command("Compose", Command.OK, 0);
             sent   =   new Command("Sent", Command.OK, 0);
             exit   =   new Command("Exit", Command.OK, 0);
+            openFindMessBox = new Command("Find", Command.EXIT, 0);
             lstB.addCommand(back);
             lstB.addCommand(inbox);
             lstB.addCommand(sent);
             lstB.addCommand(Compose);
+            lstB.addCommand(openFindMessBox);
             lstB.addCommand(exit);
             
             display.setCurrent(lstB);
@@ -1053,6 +1165,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             // display the result
             offres = offresHandler.getOffres();
             lstO = new List("List Offre", List.IMPLICIT);
+            lstO.addCommand(back);
             lstO.setCommandListener(this);
             if (offres.length > 0) {
                 for (int i = 0; i < offres.length; i++) {
@@ -1150,6 +1263,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             sb.append("*surface: ");
             sb.append(offres[i].getSurface());
             postion = offres[i].getPosition();
+            idOneOffre = offres[i].getId();
             System.out.println(postion);
         }
         res = sb.toString();
@@ -1166,13 +1280,14 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             // get a parser object
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
             // get an InputStream from somewhere (could be HttpConnection, for example)
-            HttpConnection hc = (HttpConnection) Connector.open("http://localhost/pidevfinal3/pidev_sprint2/web/app_dev.php/v1/archives.xml");
+            HttpConnection hc = (HttpConnection) Connector.open("http://localhost/pidev_sprint2/web/app_dev.php/v1/archives.xml");
             DataInputStream dis = new DataInputStream(hc.openDataInputStream());
             parser.parse(dis, ArchivesHandler);
             // display the result
             archives = ArchivesHandler.getArchive();
             lstA = new List("Archives", List.IMPLICIT);
             lstA.setCommandListener(this);
+            lstA.addCommand(back);
             if (archives.length > 0) {
                 for (int i = 0; i < archives.length; i++) {
                     lstA.append(archives[i].getIdGerant()+" "
@@ -1435,6 +1550,29 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                                 display.setCurrent(statSegment(data));
                             } catch (IOException ex) {
                                 ex.printStackTrace();
+                            }
+                        }
+                    }).start();
+                } else if (x == 7){
+                    lastDisplayed = display.getCurrent();
+                    display.setCurrent(connectingSegment());
+                    new Thread(new Runnable() {
+                        public void run() {
+                            try {
+                                OffreHandler(lastDisplayed);
+                            } catch (IOException ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    }).start();
+                } else if (x == 5){
+                    lastDisplayed = display.getCurrent();
+                    display.setCurrent(connectingSegment());
+                    new Thread(new Runnable() {
+                        public void run() {
+                            try {
+                                ArchiveHandler(lastDisplayed);
+                            } catch (IOException ex) {
                             }
                         }
                     }).start();

@@ -30,7 +30,7 @@ public class GoogleMapsMarkerCanvas extends GoogleMapsTestCanvas implements Goog
 		map.setHandler(this);
 		map.setCenter(new GoogleMapsCoordinates( lalt, lon));
 		GoogleMapsMarker redMarker = new GoogleMapsMarker(new GoogleMapsCoordinates( lalt, lon ));
-		redMarker.setColor(GoogleStaticMap.COLOR_RED);
+		redMarker.setColor(GoogleStaticMap.COLOR_BLACK);
 		redMarker.setSize(GoogleMapsMarker.SIZE_MID);
 		redMarker.setLabel('+');
                 

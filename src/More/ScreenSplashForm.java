@@ -27,7 +27,7 @@ public class ScreenSplashForm extends Canvas implements Runnable {
         this.mid =m;
         this.mxc = mxc;
         try{
-        image = Image.createImage("/icons/angrybirds-icon.png");
+        image = Image.createImage("/icons/icon.png");
         Thread t = new Thread(this);
         t.start();
         }
