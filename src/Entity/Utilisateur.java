@@ -129,5 +129,9 @@ public class Utilisateur {
         this.URLp = URLp;
     }
 
+    public String toString() {
+        return "Utilisateur{" + "id=" + id + ", mail=" + mail + ", password=" + password + ", nom=" + nom + ", prenom=" + prenom + ", numMobile=" + numMobile + ", numFix=" + numFix + ", statMAtri=" + statMAtri+"}";
+    }
+
     
 }
