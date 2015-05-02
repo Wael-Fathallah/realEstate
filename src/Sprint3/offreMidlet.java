@@ -116,7 +116,7 @@ public class offreMidlet extends MIDlet implements CommandListener, Runnable {
             // get a parser object
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
             // get an InputStream from somewhere (could be HttpConnection, for example)
-            HttpConnection hc = (HttpConnection) Connector.open("http://localhost/pidev_sprint2/web/app_dev.php/v1/offres.xml?limit=10");
+            HttpConnection hc = (HttpConnection) Connector.open("http://localhost/pidev_sprint2/web/app_dev.php/v1/offres.xml?limit=2");
             DataInputStream dis = new DataInputStream(hc.openDataInputStream());
             parser.parse(dis, offresHandler);
             // display the result
