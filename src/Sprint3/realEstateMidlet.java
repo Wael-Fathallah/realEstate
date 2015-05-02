@@ -62,7 +62,7 @@ import org.xml.sax.SAXException;
 public class realEstateMidlet extends MIDlet implements CommandListener, ItemCommandListener  {
     
     // <editor-fold defaultstate="collapsed" desc=" Global variable">
-    private Display display;
+    public Display display;
     private Alert   errorAlert;
     private Form    XForm;
     private Image   appIcon;
@@ -86,6 +86,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     String urlX = "";
     StringBuffer sb = new StringBuffer();
     int ch;
+    offreAjoutForm ajtForm;
+   
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Login Screen ">
@@ -168,6 +170,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     
     // <editor-fold defaultstate="collapsed" desc=" Am not here so leave me alone">
     public realEstateMidlet() {
+        ajtForm=new offreAjoutForm(this,this.myID,lastDisplayed);
         currDirName = MEGA_ROOT;
         //for loading images
         try {
@@ -193,9 +196,11 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         display = Display.getDisplay(this);
         if(myID!=null){
             display.setCurrent(sp);
+           // display.setCurrent(ajtForm);
         }else{
-            sp =new ScreenSplashForm(display, loginSegment());             
-            display.setCurrent(sp);}
+            sp =new ScreenSplashForm(display, this.loginSegment());             
+            display.setCurrent(sp);
+        }
         SMS msg = new SMS();
         msg.sendSms("123456789", "ahla");
         
@@ -688,6 +693,9 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         }
         // </editor-fold>
     }
+    protected Form ajoutForm(){
+        return ajtForm;
+    }
     
     // <editor-fold defaultstate="collapsed" desc=" Segments Block ">
     
@@ -730,8 +738,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         inscrireForm = new Form("Inscrire Client");
         next= new Command("S'inscrire", Command.EXIT, 0);
         exit= new Command("Exit", Command.OK, 0);
-        uploadC= new Command("Uploud image", Command.ITEM, 0);
-        StringItem item = new StringItem("", "Uploud image ", Item.BUTTON);
+        uploadC= new Command("Upload image", Command.ITEM, 0);
+        StringItem item = new StringItem("", "Upload image ", Item.BUTTON);
         item.setDefaultCommand(uploadC);
         item.setItemCommandListener(this);
         inscrireForm.append(email);
