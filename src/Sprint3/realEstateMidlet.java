@@ -88,11 +88,11 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private String  userPass;      //have to saved
     private int     userType;      //have to saved
     private int     CorG;
-
+    
     private Displayable lastDisplayed;
     ScreenSplashForm sp ;
     private Hello x = new Hello();
-
+    
     //Connexion
     HttpConnection hc;
     DataInputStream dis;
@@ -139,7 +139,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private TextBox     bodyM;
     private TextBox     oneMail;
     private String      oneMailId;
-
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Stat Screen">
@@ -157,7 +157,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private String postion;
     private Displayable rateDisplayable;
     private int idOneOffre;
-
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Client Screen">
@@ -165,7 +165,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private Command listC;
     private Utilisateur[] utilisateur;
     private Command upload;
-  
+    
     private Form ClientF;
     private Command ajoutC;
     private Form ajoutF;
@@ -185,7 +185,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private Command supprimerG;
     private Command modifierG;
     private Command confirmerModifG;
-    //Champs pour modifiacation gerant 
+    //Champs pour modifiacation gerant
     private TextField txt_nom;
     private TextField txt_prenom;
     private TextField txt_mail;
@@ -195,7 +195,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private TextField txt_status;
     private boolean stopSound = false;
     static Player tonePlayer = null;
-
+    
     // </editor-fold>
     
     
@@ -206,14 +206,13 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     Form formA ;
     
     // </editor-fold>
-   
+    
     // <editor-fold defaultstate="collapsed" desc=" Stat Screen">
     
     private Stat1 [] stat1;
     
     
     // </editor-fold>
-    
     
     // <editor-fold defaultstate="collapsed" desc=" Am not here so leave me alone">
     public realEstateMidlet() {
@@ -243,7 +242,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         if(myID!=null){
             display.setCurrent(sp);
         }else{
-            sp =new ScreenSplashForm(display, loginSegment());             
+            sp =new ScreenSplashForm(display, loginSegment());
             display.setCurrent(sp);}
         SMS msg = new SMS();
         msg.sendSms("123456789", "ahla");
@@ -284,9 +283,9 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         //Back
         if (c == back && d == oneMail) {
             if(runState=="Inbox"){
-            c=inbox;}
+                c=inbox;}
             else {
-            c=sent;
+                c=sent;
             }
         }
         //Back
@@ -440,28 +439,28 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             
             display.setCurrent(connectingSegment());
         }
-         if  (c == List.SELECT_COMMAND && d == lstC) {
+        if  (c == List.SELECT_COMMAND && d == lstC) {
             ClientF=new Form("Plus d'informations");
             ClientF.append("Informations : \n");
             ClientF.append(showClient(lstC.getSelectedIndex()));
             
             supprimerC   =   new Command("Supprimer Le Client", Command.SCREEN, 0);
             modifierC   =   new Command("Modifier Le Client", Command.SCREEN, 0);
-        
+            ClientF.addCommand(back);
             ClientF.addCommand(supprimerC);
             ClientF.addCommand(modifierC);
-            ClientF.addCommand(exit);
-
+            
+            
             ClientF.setCommandListener(this);
-
+            
             display.setCurrent(ClientF);
             
         }
         
         // </editor-fold>
-         
+        
         // <editor-fold defaultstate="collapsed" desc=" Ajout Client Command ">
-         if (d == ajoutF) {
+        if (d == ajoutF) {
             runState = "Inscrire";
             lastDisplayed = display.getCurrent();
             userName = email.getString().trim();
@@ -481,7 +480,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                     if(setData(lastDisplayed)){
                         String tmp = null;
                         tmp = sb.toString().trim();
-                       StringTokenizer tok;
+                        StringTokenizer tok;
                         tok = new StringTokenizer(tmp,"|");
                         tmp = tok.nextToken();
                         if ("OKR".equals(tmp) ) {
@@ -506,79 +505,79 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 }
             }).start();
         }
-         if (c == ajoutC) {
+        if (c == ajoutC) {
             
             display.setCurrent(AjouterCSegment());
             
         }
         
-        // </editor-fold> 
-         
+        // </editor-fold>
+        
         // <editor-fold defaultstate="collapsed" desc=" SupprimerClient Command ">
-         if (c == supprimerC ) {
+        if (c == supprimerC ) {
             runState = "ListC";
             
-           lastDisplayed = display.getCurrent();
+            lastDisplayed = display.getCurrent();
             ID=Integer.parseInt(utilisateur[lstC.getSelectedIndex()].getId());
-           
+            
             urlX="Utilisateur/getXmlDeleteC.php?id="+ID;
-             
+            
             new Thread(new Runnable() {
-                    public void run() {
-                        try {              
-                            UtilisateurHandler(lastDisplayed);
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
-                        }
+                public void run() {
+                    try {
+                        UtilisateurHandler(lastDisplayed);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
                     }
-                }).start();       
-
+                }
+            }).start();
+            
             display.setCurrent(wellcomeSegment(myName));
             
-          errorAlert = new Alert("Succes", "Le client a été supprimé ", null,AlertType.INFO);
-                            errorAlert.setTimeout(3000);
-                            display.setCurrent(errorAlert);
-          
-
+            errorAlert = new Alert("Succes", "Le client a été supprimé ", null,AlertType.INFO);
+            errorAlert.setTimeout(3000);
+            display.setCurrent(errorAlert);
+            
+            
         }
         
         // </editor-fold>
-         
+        
         // <editor-fold defaultstate="collapsed" desc=" ModfierClient Command ">
-         if (c == next && d == modifierF) {
+        if (c == next && d == modifierF) {
             runState = "ListC";
-             lastDisplayed = display.getCurrent();
+            lastDisplayed = display.getCurrent();
             ID=Integer.parseInt(utilisateur[lstC.getSelectedIndex()].getId());
             userName = email.getString().trim();
             
-           
-            urlX="Utilisateur/getXmlUpdateC.php?id="+ID+"&mail="+userName+"&nom="+nom.getString().trim()+"&prenom="+prenom.getString().trim(); 
-             
+            
+            urlX="Utilisateur/getXmlUpdateC.php?id="+ID+"&mail="+userName+"&nom="+nom.getString().trim()+"&prenom="+prenom.getString().trim();
+            
             new Thread(new Runnable() {
-                    public void run() {
-                        try {              
-                            UtilisateurHandler( lastDisplayed );
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
-                        }   
-                           
+                public void run() {
+                    try {
+                        UtilisateurHandler( lastDisplayed );
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
                     }
-                }).start();       
-
+                    
+                }
+            }).start();
+            
             
             display.setCurrent(wellcomeSegment(myName));
-             errorAlert = new Alert("Succes", "Le client a été modifié avec succés", null,AlertType.INFO);
-                            errorAlert.setTimeout(3000);
-                            display.setCurrent(errorAlert);
-          
-
+            errorAlert = new Alert("Succes", "Le client a été modifié avec succés", null,AlertType.INFO);
+            errorAlert.setTimeout(3000);
+            display.setCurrent(errorAlert);
+            
+            
         }
         
-         if (c == modifierC)
-         {display.setCurrent(ModifierCSegment());}
-
-        // </editor-fold> 
-         
+        if (c == modifierC)
+        {display.setCurrent(ModifierCSegment());}
+        
+        // </editor-fold>
+        
         // <editor-fold defaultstate="collapsed" desc=" MailBox Commands ">
         if (c == inbox) {
             
@@ -681,14 +680,14 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                         String tmp = null;
                         tmp = sb.toString().trim();
                         if ("OKD".equals(tmp)) {
-                           
+                            
                             
                             errorAlert = new Alert("Done", "Delete done with success", null,AlertType.INFO);
                             errorAlert.setTimeout(3000);
                             display.setCurrent(errorAlert);
                             
                         }else{
-                         
+                            
                             errorAlert = new Alert("Error", sb.toString().trim(), null,AlertType.ERROR);
                             errorAlert.setTimeout(3000);
                             display.setCurrent(errorAlert);
@@ -699,11 +698,11 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             }).start();
         }
         if(c == findMess){
-
+            
             if("Inbox".equals(runState)){
-            urlX="Boitemessages/getFindXmlMessage.php?myID="+myID+"&IorS=I&fsffsf="+findMessBox.getString().trim();
+                urlX="Boitemessages/getFindXmlMessage.php?myID="+myID+"&IorS=I&fsffsf="+findMessBox.getString().trim();
                 
-            }else{    
+            }else{
                 urlX="Boitemessages/getFindXmlMessage.php?myID="+myID+"&IorS=S&fsffsf="+findMessBox.getString().trim();
             }
             display.setCurrent(connectingSegment());
@@ -844,15 +843,15 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             
             urlX="Utilisateur/getXmlGerants.php";
             new Thread(new Runnable() {
-                    public void run() {
-                        try {              
-                            GerantHandler();
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
-                        }
+                public void run() {
+                    try {
+                        GerantHandler();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
                     }
-                }).start();       
-
+                }
+            }).start();
+            
             display.setCurrent(connectingSegment());
         }
         // </editor-fold>
@@ -868,36 +867,36 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             fgerant.addCommand(modifierG);
             fgerant.setCommandListener(this);
             display.setCurrent(fgerant);
-                
+            
         }
         // </editor-fold>
         // <editor-fold defaultstate="collapsed" desc="Supprimer Gerant">
         if(c==supprimerG && d==fgerant){
             urlX="Utilisateur/getXmlDeleteGerant.php?id="+idGerantSupp;
-                 lastDisplayed = display.getCurrent();
-                 //System.out.println(idGerantSupp);
-                 if(setData(lastDisplayed)){
-                            errorAlert = new Alert("Done", sb.toString().trim(), null,AlertType.INFO);
-                            errorAlert.setTimeout(3000);
-                            display.setCurrent(errorAlert);
-                             display.vibrate(2000);
-                            //display.flashBacklight(2000);
-                 }   
-                 
-                 //Ce bout de code est ajouté pour refrachir la liste aprés suppression
-                 runState = "Gerants";
-                 urlX="Utilisateur/getXmlGerants.php";
-                 new Thread(new Runnable() {
-                    public void run() {
-                        try {              
-                            GerantHandler();
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
-                        }
+            lastDisplayed = display.getCurrent();
+            //System.out.println(idGerantSupp);
+            if(setData(lastDisplayed)){
+                errorAlert = new Alert("Done", sb.toString().trim(), null,AlertType.INFO);
+                errorAlert.setTimeout(3000);
+                display.setCurrent(errorAlert);
+                display.vibrate(2000);
+                //display.flashBacklight(2000);
+            }
+            
+            //Ce bout de code est ajouté pour refrachir la liste aprés suppression
+            runState = "Gerants";
+            urlX="Utilisateur/getXmlGerants.php";
+            new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        GerantHandler();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
                     }
-                }).start();       
-
-                 //display.setCurrent(connectingSegment());
+                }
+            }).start();
+            
+            //display.setCurrent(connectingSegment());
         }
         // </editor-fold>
         // <editor-fold defaultstate="collapsed" desc="Details Gerant à Modifier">
@@ -928,19 +927,19 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         // <editor-fold defaultstate="collapsed" desc="Confirmer aprés Modification">
         if(c==confirmerModifG&&d==fModifGerant){
             //System.out.println("2222222222222222222222222222222222");
-             urlX="Utilisateur/getXmlUpdateGerant.php?id="+gerantModif.getId()+"&nom="+txt_nom.getString()+
-                     "&prenom="+txt_prenom.getString()
-                     + "&mail="+txt_mail.getString()+"&pwd="+txt_pwd.getString()
-                     + "&mobile="+txt_mobile.getString()+"&fix="+txt_fix.getString()+"&status="+txt_status.getString();
-                 lastDisplayed = display.getCurrent();
-                 //System.out.println("Modification mchét :D!");
-                 if(setData(lastDisplayed)){
-                            errorAlert = new Alert("Done", sb.toString().trim(), null,AlertType.INFO);
-                            errorAlert.setTimeout(3000);
-                            display.setCurrent(errorAlert);
-                            display.flashBacklight(2000);
-                 } 
-                 
+            urlX="Utilisateur/getXmlUpdateGerant.php?id="+gerantModif.getId()+"&nom="+txt_nom.getString()+
+                    "&prenom="+txt_prenom.getString()
+                    + "&mail="+txt_mail.getString()+"&pwd="+txt_pwd.getString()
+                    + "&mobile="+txt_mobile.getString()+"&fix="+txt_fix.getString()+"&status="+txt_status.getString();
+            lastDisplayed = display.getCurrent();
+            //System.out.println("Modification mchét :D!");
+            if(setData(lastDisplayed)){
+                errorAlert = new Alert("Done", sb.toString().trim(), null,AlertType.INFO);
+                errorAlert.setTimeout(3000);
+                display.setCurrent(errorAlert);
+                display.flashBacklight(2000);
+            }
+            
         }
         // </editor-fold>
         // </editor-fold>
@@ -974,7 +973,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             
             float lon = Float.valueOf(tmp1.trim()).floatValue();
             float lalt = Float.valueOf(tmp2.trim()).floatValue();
-
+            
             display.setCurrent(new GoogleMapsMarkerCanvas(this, formO, lon, lalt));
         }
         // </editor-fold>
@@ -983,7 +982,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         if (c == rateC) {
             display.setCurrent(connectingSegment());
             System.out.println(idOneOffre);
-                System.out.println(myID);
+            System.out.println(myID);
             Rating rr =new Rating(idOneOffre,myID);
             rr.setTitle("Rating");
             rr.addCommand(back);
@@ -1071,11 +1070,11 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         ajoutF.append(prenom);
         ajoutF.append(item);
         ajoutF.addCommand(next);
-        ajoutF.addCommand(exit);
+        ajoutF.addCommand(back);
         ajoutF.setCommandListener(this);
         return ajoutF;
     }
-    // </editor-fold> 
+    // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" ModifierCSegment ">
     private Form ModifierCSegment() {
@@ -1096,7 +1095,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         modifierF.setCommandListener(this);
         return modifierF;
     }
-    // </editor-fold> 
+    // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" inscrireGSegment ">
     private Form inscrireGSegment() {
@@ -1138,21 +1137,21 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         exit= new Command("Exit", Command.OK, 0);
         inbox= new Command("Inbox", Command.SCREEN, 0);
         statCom= new Command("Stat", Command.SCREEN, 0);
-
+        
         listC   =   new Command("List Clients", Command.SCREEN, 0);
-
+        
         listOffreCom  =   new Command("List Offre", Command.SCREEN, 0);
-
-
-       
+        
+        
+        
         ajoutC   =   new Command("Ajouter Client", Command.SCREEN, 0);
         gerants = new Command("Liste des gerants", Command.SCREEN, 0);
-
+        
         XForm.addCommand(exit);
         XForm.addCommand(inbox);
         XForm.addCommand(listC);
         XForm.addCommand(ajoutC);
-
+        
         XForm.addCommand(gerants);
         XForm.addCommand(statCom);
         XForm.addCommand(listOffreCom);
@@ -1481,7 +1480,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     void UtilisateurHandler(Displayable lastDisplayeb) throws IOException{
         try {
             UtilisateurHandler utilisateurHandler = new UtilisateurHandler();
-
+            
             
             // get a parser object
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
@@ -1662,15 +1661,13 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 }
             }
             display.setCurrent(lstA);
-                    
-                back   =   new Command("Back", Command.EXIT, 0);
-                exit   =   new Command("Exit", Command.OK, 0);
-                
-                
-                lstA.addCommand(back);
-                lstA.addCommand(exit);
-                lstA.setCommandListener(this);
-                display.setCurrent(lstA);
+            
+            back   =   new Command("Back", Command.EXIT, 0);
+            exit   =   new Command("Exit", Command.OK, 0);
+            
+            lstA.addCommand(exit);
+            lstA.setCommandListener(this);
+            display.setCurrent(lstA);
         } catch (ParserConfigurationException ex) {
             problemCallMe(lastDisplayeb);
         } catch (SAXException ex) {
@@ -1705,7 +1702,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     
     // <editor-fold defaultstate="collapsed" desc=" showClent ">
     private String showClient(int i) {
-         String res1 = "";
+        String res1 = "";
         if (utilisateur.length > 0) {
             sb = new StringBuffer();
             sb.append("* ");
@@ -1992,23 +1989,23 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                             }
                         }
                     }).start();
-
+                    
                     display.setCurrent(connectingSegment());
                 } else if(x==2){
                     runState = "Gerants";
-            
-            urlX="Utilisateur/getXmlGerants.php";
-            new Thread(new Runnable() {
-                    public void run() {
-                        try {              
-                            GerantHandler();
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
+                    
+                    urlX="Utilisateur/getXmlGerants.php";
+                    new Thread(new Runnable() {
+                        public void run() {
+                            try {
+                                GerantHandler();
+                            } catch (IOException ex) {
+                                ex.printStackTrace();
+                            }
                         }
-                    }
-                }).start();       
-
-                display.setCurrent(connectingSegment());
+                    }).start();
+                    
+                    display.setCurrent(connectingSegment());
                 }
             }
         }
@@ -2019,41 +2016,41 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     void GerantHandler() throws IOException{
         try {
             GerantHandler gerantHandler = new GerantHandler();
-                // get a parser object
-                SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
-                // get an InputStream from somewhere (could be HttpConnection, for example)
-                hc = (HttpConnection) Connector.open(url+replace(urlX, " ", "+"));
-                dis = new DataInputStream(hc.openDataInputStream());
-                parser.parse(dis, gerantHandler);
-                // display the result
-                utilisateur = gerantHandler.getUtilisateur();
-                lstG = new List("Liste gerants", List.IMPLICIT);
-                    
-                    if (utilisateur.length > 0) {
-
-                        for (int i = 0; i < utilisateur.length; i++) {
+            // get a parser object
+            SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+            // get an InputStream from somewhere (could be HttpConnection, for example)
+            hc = (HttpConnection) Connector.open(url+replace(urlX, " ", "+"));
+            dis = new DataInputStream(hc.openDataInputStream());
+            parser.parse(dis, gerantHandler);
+            // display the result
+            utilisateur = gerantHandler.getUtilisateur();
+            lstG = new List("Liste gerants", List.IMPLICIT);
+            
+            if (utilisateur.length > 0) {
+                
+                for (int i = 0; i < utilisateur.length; i++) {
 //                            lstG.append(utilisateur[i].getNom()+"\n"
 //                                    +utilisateur[i].getPrenom()+" "
 //                                    +utilisateur[i].getMail()+"\n --------------------- \n", null);
-                            lstG.append(utilisateur[i].getMail()+"  "
-                                    +utilisateur[i].getPassword()+" \n"
-                                    +utilisateur[i].getNom()+"\n ---------------------------- \n", null);         
-                        }
-                    }
-                back   =   new Command("Back", Command.EXIT, 0);
-                exit   =   new Command("Exit", Command.OK, 0);
-                
-                lstG.addCommand(back);
-                lstG.addCommand(exit);
-                lstG.setCommandListener(this);
-                display.setCurrent(lstG);
+                    lstG.append(utilisateur[i].getMail()+"  "
+                            +utilisateur[i].getPassword()+" \n"
+                            +utilisateur[i].getNom()+"\n ---------------------------- \n", null);
+                }
+            }
+            //back   =   new Command("Back", Command.EXIT, 0);
+            exit   =   new Command("Exit", Command.OK, 0);
+            
+            lstG.addCommand(back);
+            lstG.addCommand(exit);
+            lstG.setCommandListener(this);
+            display.setCurrent(lstG);
         } catch (ParserConfigurationException ex) {
             ex.printStackTrace();
         } catch (SAXException ex) {
             ex.printStackTrace();
         }
     }
-    // </editor-fold>  
+    // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" showGerant ">
     private String showGerant(int i) {
@@ -2094,32 +2091,26 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" API Audio ">
-     private void playFromResource() {
-      try {
-      InputStream in = getClass().getResourceAsStream("/audio/son.wav");
-      Player player = Manager.createPlayer(in, "audio/x-wav");
-      tonePlayer=player;
-      player.start();
-      
-        } 
-      catch (Exception e) {
-         System.out.println(e.getMessage());
+    private void playFromResource() {
+        try {
+            InputStream in = getClass().getResourceAsStream("/audio/son.wav");
+            Player player = Manager.createPlayer(in, "audio/x-wav");
+            tonePlayer=player;
+            player.start();
+            
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
-       }
     public void stopSound() {
         stopSound = true;
         if (tonePlayer != null) {
             tonePlayer.close();
             tonePlayer = null;
         }
-    }    
+    }
     // </editor-fold>
     // </editor-fold>
     
-
-    
-   
-
-    
-
 }
