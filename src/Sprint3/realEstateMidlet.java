@@ -115,7 +115,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private TextField   numFix;
     private TextField   numMob;
     private TextField   statM;
-    private Command     uploadC;
+    public Command     uploadC;
     private Command     backC;
     private String      imageName;
     // </editor-fold>
@@ -184,7 +184,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     
     // <editor-fold defaultstate="collapsed" desc=" Am not here so leave me alone">
     public realEstateMidlet() {
-        ajtForm=new offreAjoutForm(this,this.myID,lastDisplayed);
+        ajtForm=new offreAjoutForm(this,"1",lastDisplayed);
         currDirName = MEGA_ROOT;
         //for loading images
         try {
@@ -212,7 +212,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             display.setCurrent(sp);
            // display.setCurrent(ajtForm);
         }else{
-            sp =new ScreenSplashForm(display, this.loginSegment());             
+            sp =new ScreenSplashForm(display, this.ajoutForm());             
             display.setCurrent(sp);
         }
         SMS msg = new SMS();
