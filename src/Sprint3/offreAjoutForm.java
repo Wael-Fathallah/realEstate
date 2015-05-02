@@ -120,7 +120,7 @@ public class offreAjoutForm extends Form implements CommandListener, Runnable, I
         super("ajout");
         this.main = main;
         this.idGerant = idGerant;
-        this.target = target;
+        this.target = taget;
         currDirName = MEGA_ROOT;
 
         //affectation des Etats
@@ -275,9 +275,10 @@ public class offreAjoutForm extends Form implements CommandListener, Runnable, I
             Alert alert = new Alert("Success",
                     "Votre offre est ajouté  !",
                     null, AlertType.CONFIRMATION);
-
+ 
             main.display.setCurrent(alert);
             main.display.setCurrent(target);
+           
 
             sb = new StringBuffer();
 

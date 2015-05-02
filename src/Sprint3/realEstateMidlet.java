@@ -91,7 +91,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     
     private Displayable lastDisplayed;
     ScreenSplashForm sp ;
-    private Hello x = new Hello();
+    private Hello x = new Hello(this);
     
     //Connexion
     HttpConnection hc;
@@ -218,7 +218,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     
     // <editor-fold defaultstate="collapsed" desc=" Am not here so leave me alone">
     public realEstateMidlet() {
-        ajtForm=new offreAjoutForm(this,"1",lastDisplayed);
+       
         currDirName = MEGA_ROOT;
         //for loading images
         try {
@@ -1803,6 +1803,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         private Image image12;
         private Image image13;
         private Image image14;
+        realEstateMidlet mid;
         
         /**
          * The constructor attempts to load the named image and begins a timeout
@@ -1810,7 +1811,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
          * a pointer press, or a timeout
          * @param offreMidlet instance of MIDlet
          */
-        public Hello(){
+        public Hello(realEstateMidlet mid){
+            this.mid=mid;
             
             try{
                 image = Image.createImage("/icons/backscreen.png");
@@ -2016,7 +2018,10 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                     
                     display.setCurrent(connectingSegment());
                 }
-            }
+            }else if(x==1){
+                     ajtForm=new offreAjoutForm(this.mid,myID,this.mid.display.getCurrent());
+                     display.setCurrent(ajtForm);
+                }
         }
     }
     // </editor-fold>
