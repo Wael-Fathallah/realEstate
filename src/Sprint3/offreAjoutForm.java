@@ -45,6 +45,7 @@ import javax.microedition.lcdui.StringItem;
  */
 public class offreAjoutForm extends Form implements CommandListener, Runnable, ItemCommandListener {
 
+    // <editor-fold defaultstate="collapsed" desc=" Global variable">
     realEstateMidlet main;
 
     //les Listes
@@ -60,15 +61,16 @@ public class offreAjoutForm extends Form implements CommandListener, Runnable, I
     TextField tfdescription = new TextField("Description", null, 500, TextField.ANY);
 
     Command cmdValider = new Command("valider", Command.SCREEN, 0);
-    Command cmdBack = new Command("cmdBack", Command.BACK, 0);
-    Command cmdNextEtat = new Command("etat", Command.BACK, 0);
-    Command cmdNextimmob = new Command("type Immob", Command.BACK, 0);
-    Command cmdNextnature = new Command("nature", Command.BACK, 0);
-    Command cmdNextEquipement = new Command("Next", Command.BACK, 0);
-    Command cmdNextCode = new Command("Code postale", Command.BACK, 0);
+    Command cmdBack = new Command("Back", Command.BACK, 0);
+    Command cmdNextEtat = new Command("etat", Command.SCREEN, 0);
+    Command cmdNextimmob = new Command("type Immob", Command.SCREEN, 0);
+    Command cmdNextnature = new Command("nature", Command.SCREEN, 0);
+    Command cmdNextEquipement = new Command("Next", Command.SCREEN, 0);
+    Command cmdNextCode = new Command("Code postale", Command.SCREEN, 0);
     Command uploadC = new Command("Upload image", Command.ITEM, 0);
 
     Alert alerta = new Alert("Error", "Sorry", null, AlertType.ERROR);
+    Alert alertChamps = new Alert("Sorry", "il faut remplir tous les champs", null, AlertType.ERROR);
     //adresses
     Adresse[] adresses;
     //codePostal of an offre
@@ -86,10 +88,12 @@ public class offreAjoutForm extends Form implements CommandListener, Runnable, I
     String url = "http://localhost/pidev_sprint2/web/app_dev.php/v1/offres.xml";
     StringBuffer sb = new StringBuffer();
     int ch;
+    
     private Object IOUtils;
     String idGerant;
     Displayable target;
     private Displayable lastDisplayed;
+    
 
     /* special string denotes upper directory */
     private static final String UP_DIRECTORY = "..";
@@ -113,14 +117,17 @@ public class offreAjoutForm extends Form implements CommandListener, Runnable, I
 
     private Command backC;
     private String imageName;
-
+// </editor-fold>
     //   args (this===>midletCourante,idGerant, displayable target apré validation)
-    public offreAjoutForm(realEstateMidlet main, String idGerant, Displayable taget) {
+    public offreAjoutForm(realEstateMidlet main, String idGerant, Displayable target) {
 
         super("ajout");
         this.main = main;
         this.idGerant = idGerant;
-        this.target = taget;
+        this.target = target;
+        
+        this.lastDisplayed=target;
+        
         currDirName = MEGA_ROOT;
 
         //affectation des Etats
@@ -161,12 +168,15 @@ public class offreAjoutForm extends Form implements CommandListener, Runnable, I
         natureList.append("Vente", null);
 
         etatList.addCommand(cmdNextimmob);
+        etatList.addCommand(cmdBack);
         etatList.setCommandListener(this);
 
         typeImmobList.addCommand(cmdNextnature);
+        typeImmobList.addCommand(cmdBack);
         typeImmobList.setCommandListener(this);
 
         natureList.addCommand(cmdNextEquipement);
+        natureList.addCommand(cmdBack);
         natureList.setCommandListener(this);
 
         lstAdresse.addCommand(cmdBack);
@@ -189,6 +199,7 @@ public class offreAjoutForm extends Form implements CommandListener, Runnable, I
         f2.append(item);
 
         //affectation des commande
+        this.addCommand(cmdBack);
         this.addCommand(cmdNextEtat);
         this.setCommandListener(this);
 
@@ -201,22 +212,43 @@ public class offreAjoutForm extends Form implements CommandListener, Runnable, I
     }
 
     public void commandAction(Command c, Displayable d) {
-
+        int ch=0;
         if (c == cmdNextEtat) {
-            main.display.setCurrent(etatList);
+            if(this.tfpayement.getString().equals("")){
+                ch=-1;
+            }
+            if(this.tfdescription.getString().equals("")){
+                ch=-1;
+            }
+            if(this.tfsurface.getString().equals("")){
+                ch=-1;
+            }
+            if(this.tfnbrPiece.getString().equals("")){
+                ch=-1;
+            }
+            if(ch==-1)
+                main.display.setCurrent(this.alertChamps);
+            else
+                 main.display.setCurrent(etatList);
+            
+          
+            this.lastDisplayed=this;
         }
         if (c == cmdNextimmob) {
             main.display.setCurrent(typeImmobList);
+            this.lastDisplayed=etatList;
         }
         if (c == cmdNextnature) {
             main.display.setCurrent(natureList);
+            this.lastDisplayed=typeImmobList;
         }
         if (c == cmdBack) {
-            main.display.setCurrent(this);
+            main.display.setCurrent(this.lastDisplayed);
 
         }
         if (c == cmdNextEquipement) {
-            main.display.setCurrent(f2);
+            main.display.setCurrent(this.f2);
+            this.lastDisplayed=natureList;
 
         }
         if (c == cmdNextCode) {
@@ -228,6 +260,7 @@ public class offreAjoutForm extends Form implements CommandListener, Runnable, I
             for (int i = 0; i < equipementGp.size(); i++) {
                 equipSelected += "&" + equipementGp.getString(i) + (selected[i] ? "=1" : "=0");
             }
+            this.lastDisplayed=f2;
 
         }
         if (c == cmdValider) {
@@ -267,6 +300,7 @@ public class offreAjoutForm extends Form implements CommandListener, Runnable, I
                     + "&nature=" + natureList.getString(natureList.getSelectedIndex()) + "&typeimmob=" + typeImmobList.getString(typeImmobList.getSelectedIndex())
                     + "&urlImage=http://localhost/image/" + this.imageName + "&code=" + this.code + "&description=" + tfdescription.getString().trim().replace(' ', '+') + equipSelected
             );
+            HttpConnection hcArcihve = (HttpConnection) Connector.open("http://localhost/pi_mob_dao/ajoutA.php"+"?idGerant="+this.idGerant+"&url="+"http://localhost/image/" + this.imageName);
 
             hc1.setRequestMethod("POST");
 
@@ -277,6 +311,7 @@ public class offreAjoutForm extends Form implements CommandListener, Runnable, I
                     null, AlertType.CONFIRMATION);
  
             main.display.setCurrent(alert);
+            alert.setTimeout(Alert.FOREVER);
             main.display.setCurrent(target);
            
 
@@ -325,7 +360,7 @@ public class offreAjoutForm extends Form implements CommandListener, Runnable, I
         }
     }
         // </editor-fold>  
-
+// <editor-fold defaultstate="collapsed" desc=" functions For upload">
     void showCurrDir() {
         Enumeration e;
         FileConnection currDir = null;
@@ -456,5 +491,5 @@ public class offreAjoutForm extends Form implements CommandListener, Runnable, I
         }
         return sb.toString();
     }
-
+  // </editor-fold>
 }
