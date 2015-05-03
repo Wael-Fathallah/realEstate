@@ -73,7 +73,7 @@ import org.xml.sax.SAXException;
 public class realEstateMidlet extends MIDlet implements CommandListener, ItemCommandListener  {
     
     // <editor-fold defaultstate="collapsed" desc=" Global variable">
-    private Display display;
+    public Display display;
     private Alert   errorAlert;
     private Form    XForm;
     private Image   appIcon;
@@ -91,7 +91,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     
     private Displayable lastDisplayed;
     ScreenSplashForm sp ;
-    private Hello x = new Hello();
+    private Hello x = new Hello(this);
     
     //Connexion
     HttpConnection hc;
@@ -100,6 +100,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     String urlX = "";
     StringBuffer sb = new StringBuffer();
     int ch;
+    offreAjoutForm ajtForm;
+   
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Login Screen ">
@@ -120,7 +122,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private TextField   numFix;
     private TextField   numMob;
     private TextField   statM;
-    private Command     uploadC;
+    public Command     uploadC;
     private Command     backC;
     private String      imageName;
     // </editor-fold>
@@ -216,6 +218,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     
     // <editor-fold defaultstate="collapsed" desc=" Am not here so leave me alone">
     public realEstateMidlet() {
+       
         currDirName = MEGA_ROOT;
         //for loading images
         try {
@@ -241,9 +244,12 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         display = Display.getDisplay(this);
         if(myID!=null){
             display.setCurrent(sp);
+           // display.setCurrent(ajtForm);
         }else{
+
             sp =new ScreenSplashForm(display, loginSegment());
             display.setCurrent(sp);}
+
         SMS msg = new SMS();
         msg.sendSms("123456789", "ahla");
         
@@ -991,6 +997,9 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             display.setCurrent(rateDisplayable);
         }
         // </editor-fold>
+    }
+    protected Form ajoutForm(){
+        return ajtForm;
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Segments Block ">
@@ -1794,6 +1803,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         private Image image12;
         private Image image13;
         private Image image14;
+        realEstateMidlet mid;
         
         /**
          * The constructor attempts to load the named image and begins a timeout
@@ -1801,7 +1811,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
          * a pointer press, or a timeout
          * @param offreMidlet instance of MIDlet
          */
-        public Hello(){
+        public Hello(realEstateMidlet mid){
+            this.mid=mid;
             
             try{
                 image = Image.createImage("/icons/backscreen.png");
@@ -2007,7 +2018,10 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                     
                     display.setCurrent(connectingSegment());
                 }
-            }
+            }else if(x==1){
+                     ajtForm=new offreAjoutForm(this.mid,myID,this.mid.display.getCurrent());
+                     display.setCurrent(ajtForm);
+                }
         }
     }
     // </editor-fold>
