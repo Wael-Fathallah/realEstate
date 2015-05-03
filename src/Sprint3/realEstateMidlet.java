@@ -545,19 +545,32 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             
             new Thread(new Runnable() {
                 public void run() {
-                    try {
-                        UtilisateurHandler(lastDisplayed);
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
+                    
+                    if(setData(lastDisplayed)){
+                        String tmp = null;
+                        tmp = sb.toString().trim();
+                        
+                        if ("DONE".equals(tmp) ) {
+                            
+                            
+                            display.setCurrent(lastDisplayed);
+                            
+                            errorAlert = new Alert("Done", "Suppression done with success", null,AlertType.INFO);
+                            errorAlert.setTimeout(3000);
+                            display.setCurrent(errorAlert);
+                            
+                        }else{
+                            
+                            display.setCurrent(modifierF);
+                            
+                            errorAlert = new Alert("Error", sb.toString().trim(), null,AlertType.ERROR);
+                            errorAlert.setTimeout(3000);
+                            display.setCurrent(errorAlert);
+                        }
                     }
+                    
                 }
             }).start();
-            
-            display.setCurrent(wellcomeSegment(myName));
-            
-            errorAlert = new Alert("Succes", "Le client a Ã©tÃ© supprimÃ© ", null,AlertType.INFO);
-            errorAlert.setTimeout(3000);
-            display.setCurrent(errorAlert);
             
             
         }
@@ -567,29 +580,41 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         // <editor-fold defaultstate="collapsed" desc=" ModfierClient Command ">
         if (c == next && d == modifierF) {
             runState = "ListC";
-            lastDisplayed = display.getCurrent();
+            
             ID=Integer.parseInt(utilisateur[lstC.getSelectedIndex()].getId());
             userName = email.getString().trim();
             
             
-            urlX="Utilisateur/getXmlUpdateC.php?id="+ID+"&mail="+userName+"&nom="+nom.getString().trim()+"&prenom="+prenom.getString().trim();
-            
+            urlX="Utilisateur/getXmlUpdateC.php?id="+ID+"&mail="+userName+"&nom="+nom.getString().trim()+"&prenom="+prenom.getString().trim()+"&pass="+password.getString().trim();
+            System.out.println(urlX);
             new Thread(new Runnable() {
                 public void run() {
-                    try {
-                        UtilisateurHandler( lastDisplayed );
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
+                 
+                        if(setData(lastDisplayed)){
+                        String tmp = null;
+                        tmp = sb.toString().trim();
+                        
+                        if ("DONE".equals(tmp) ) {
+                            
+                           
+                            display.setCurrent(lastDisplayed);
+                           
+                            errorAlert = new Alert("Done", "Modification done with success", null,AlertType.INFO);
+                            errorAlert.setTimeout(3000);
+                            display.setCurrent(errorAlert);
+                            
+                        }else{
+                            
+                            display.setCurrent(lastDisplayed);
+                            System.out.println(sb.toString().trim());
+                            errorAlert = new Alert("Error", sb.toString().trim(), null,AlertType.ERROR);
+                            errorAlert.setTimeout(3000);
+                            display.setCurrent(errorAlert);
+                        }
                     }
-                    
+                   
                 }
             }).start();
-            
-            
-            display.setCurrent(wellcomeSegment(myName));
-            errorAlert = new Alert("Succes", "Le client a Ã©tÃ© modifiÃ© avec succÃ©s", null,AlertType.INFO);
-            errorAlert.setTimeout(3000);
-            display.setCurrent(errorAlert);
             
             
         }
@@ -907,7 +932,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                             
                         }else{
                             
-                            display.setCurrent(inscrireForm);
+                            display.setCurrent(formA);
                             
                             errorAlert = new Alert("Error", sb.toString().trim(), null,AlertType.ERROR);
                             errorAlert.setTimeout(3000);
