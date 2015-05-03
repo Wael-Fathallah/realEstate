@@ -249,10 +249,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             
             sp =new ScreenSplashForm(display, loginSegment());
             display.setCurrent(sp);}
-        
-        SMS msg = new SMS();
-        msg.sendSms("123456789", "ahla");
-        
+   
     }
     
     public void pauseApp() {
@@ -2257,9 +2254,9 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                     }).start();
                     
                     display.setCurrent(connectingSegment());
-                }
-            }else if(x==1){
-                
+                }else if(x==1){
+                display.setCurrent(new ListeAdmin(realEstateMidlet.this));
+            }
             }
         }
     }
