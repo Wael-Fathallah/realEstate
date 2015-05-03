@@ -824,6 +824,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         if (c == List.SELECT_COMMAND && d == lstA) {
             formA = new Form("Infos Archive");
             formA.append("Informations Archive: \n");
+            formA.addCommand(back);
+            formA.setCommandListener(this);
             formA.append(showArchive(lstA.getSelectedIndex()));
             try {
                 Image im=this.getImage(lstA.getSelectedIndex());
@@ -1558,6 +1560,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     
     // <editor-fold defaultstate="collapsed" desc=" getImage params index de l'image dans la liste ">
     private Image getImage(int i) throws IOException {
+        
         ContentConnection connection = (ContentConnection) Connector.open(offres[i].getUrlImage());
         
         // * There is a bug in MIDP 1.0.3 in which read() sometimes returns
@@ -1607,6 +1610,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             }
         }
         return (im == null ? null : im);
+        
+        
     }
     // </editor-fold>
     
@@ -1671,7 +1676,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             }
             display.setCurrent(lstA);
             
-            back   =   new Command("Back", Command.EXIT, 0);
+           
             exit   =   new Command("Exit", Command.OK, 0);
             
             lstA.addCommand(exit);
