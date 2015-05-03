@@ -102,7 +102,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     StringBuffer sb = new StringBuffer();
     int ch;
     offreAjoutForm ajtForm;
-    
+
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Login Screen ">
@@ -159,9 +159,14 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private Form formO ;
     private Command mapC;
     private Command rateC;
+    private Command  nextList = new Command("More Offres ", Command.SCREEN, 0);
+    Command cmdDelete=new Command("Delete",Command.OK,0);
     private String postion;
     private Displayable rateDisplayable;
     private int idOneOffre;
+    private int offset=0;
+    int selectedIndex;
+    Image homeIcon;
     
     // </editor-fold>
     
@@ -240,6 +245,11 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         } catch (IOException e) {
             appIcon = null;
         }
+       try {
+            homeIcon = Image.createImage("/icons/home.png");
+        } catch (IOException e) {
+            homeIcon = null;
+        }
     }
     
     public void startApp() {
@@ -274,6 +284,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             //display.setCurrent(wellcomeSegment(myName));
             display.setCurrent(x);
         }
+        
         //Back
         if (c == back && d == inscrireForm) {
             display.setCurrent(loginSegment());
@@ -766,6 +777,16 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             
         }
         // </editor-fold>
+        // <editor-fold defaultstate="collapsed" desc=" delete Command ">
+         if(c==cmdDelete){
+            try {
+                this.deleteOffre(selectedIndex);
+                lstO.delete(selectedIndex);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+           // </editor-fold>
         
         // <editor-fold defaultstate="collapsed" desc=" offre Command ">
         if (c == listOffreCom) {
@@ -781,7 +802,24 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 }
             }).start();
         }
+        
+        //more Offre
+        if (c==nextList){
+            this.offset+=5;
+            lastDisplayed = display.getCurrent();
+            display.setCurrent(connectingSegment());
+            new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        OffreHandler(lastDisplayed);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }).start();
+        }
         if (c == List.SELECT_COMMAND && d == lstO) {
+             this.selectedIndex=lstO.getSelectedIndex();
             formO = new Form("Infos offre");
             formO.append("Informations Offre: \n");
             formO.append(showOffre(lstO.getSelectedIndex()));
@@ -1208,7 +1246,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         listC   =   new Command("List Clients", Command.SCREEN, 0);
         
         listOffreCom  =   new Command("List Offre", Command.SCREEN, 0);
-        
+       
         
         
         ajoutC   =   new Command("Ajouter Client", Command.SCREEN, 0);
@@ -1590,18 +1628,21 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             // get a parser object
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
             // get an InputStream from somewhere (could be HttpConnection, for example)
-            HttpConnection hc = (HttpConnection) Connector.open("http://localhost/pidev_sprint2/web/app_dev.php/v1/offres.xml?limit=2");
+            HttpConnection hc = (HttpConnection) Connector.open("http://localhost/pidev_sprint2/web/app_dev.php/v1/offres.xml?limit=5&offset="+this.offset);
             DataInputStream dis = new DataInputStream(hc.openDataInputStream());
             parser.parse(dis, offresHandler);
             // display the result
             offres = offresHandler.getOffres();
             lstO = new List("List Offre", List.IMPLICIT);
             lstO.addCommand(back);
+            lstO.addCommand(cmdDelete);
+            if(offset<20)
+            lstO.addCommand(nextList);
             lstO.setCommandListener(this);
             if (offres.length > 0) {
                 for (int i = 0; i < offres.length; i++) {
                     
-                    lstO.append(offres[i].getDescription(), this.getImage(i));
+                    lstO.append(offres[i].getDescription(), homeIcon);
                     
                 }
             }
@@ -1670,6 +1711,18 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         
     }
     // </editor-fold>
+    
+     // <editor-fold defaultstate="collapsed" desc=" deleteOffre ">
+     public void deleteOffre(int i) throws IOException{
+        HttpConnection hc = (HttpConnection) Connector.open("http://localhost/pidev_sprint2/web/app_dev.php/v1/os/"+offres[i].getId()+"/offres.json");;
+        hc.setRequestMethod("POST");
+        System.out.println(hc.getResponseMessage()); 
+         
+         System.out.println("http://localhost/pidev_sprint2/web/app_dev.php/v1/os/"+offres[i].getId()+"/offres.json");
+       
+    }
+      // </editor-fold>
+     
     
     // <editor-fold defaultstate="collapsed" desc=" ShowOffre ">
     private String showOffre(int i) {
