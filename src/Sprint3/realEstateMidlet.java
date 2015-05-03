@@ -182,7 +182,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private List lstG;
     private Form fgerant;
     private Form fModifGerant; //formulaire de modification du gerant
-    //ID du gerant à supprimer
+    //ID du gerant Ã  supprimer
     private String idGerantSupp;
     private Utilisateur gerantModif;
     private Command supprimerG;
@@ -206,14 +206,14 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private Command     archiveCom;
     private Archive [] archives;
     Form formA ;
-    
+    private Command supprimerA;
+    private int idA;
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Stat Screen">
     
     private Stat1 [] stat1;
-    
-    
+ 
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Am not here so leave me alone">
@@ -495,7 +495,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                             tmp = tok.nextToken();
                             display.setCurrent(wellcomeSegment(myName));
                             myID =tmp;
-                            errorAlert = new Alert("Done", "L'ajout a été effectue avec succes", null,AlertType.INFO);
+                            errorAlert = new Alert("Done", "L'ajout a Ã©tÃ© effectue avec succes", null,AlertType.INFO);
                             errorAlert.setTimeout(3000);
                             display.setCurrent(errorAlert);
                             
@@ -540,7 +540,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             
             display.setCurrent(wellcomeSegment(myName));
             
-            errorAlert = new Alert("Succes", "Le client a été supprimé ", null,AlertType.INFO);
+            errorAlert = new Alert("Succes", "Le client a Ã©tÃ© supprimÃ© ", null,AlertType.INFO);
             errorAlert.setTimeout(3000);
             display.setCurrent(errorAlert);
             
@@ -572,7 +572,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             
             
             display.setCurrent(wellcomeSegment(myName));
-            errorAlert = new Alert("Succes", "Le client a été modifié avec succés", null,AlertType.INFO);
+            errorAlert = new Alert("Succes", "Le client a Ã©tÃ© modifiÃ© avec succÃ©s", null,AlertType.INFO);
             errorAlert.setTimeout(3000);
             display.setCurrent(errorAlert);
             
@@ -821,16 +821,52 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         if (c == List.SELECT_COMMAND && d == lstA) {
             formA = new Form("Infos Archive");
             formA.append("Informations Archive: \n");
+            supprimerA = new Command("Suprimer", Command.SCREEN, 0);
             formA.addCommand(back);
+            formA.addCommand(supprimerA);
             formA.setCommandListener(this);
             formA.append(showArchive(lstA.getSelectedIndex()));
-            try {
-                Image im=this.getImage(lstA.getSelectedIndex());
-                ImageItem ii = new ImageItem(null, im, ImageItem.LAYOUT_DEFAULT, null);
-                formA.append(ii);
-            } catch (IOException ex) {
-            }
+            
             display.setCurrent(formA);
+        }
+        
+        if (c == supprimerA ) {
+           
+            lastDisplayed = display.getCurrent();
+           
+            urlX="Archive/suppA.php?id="+idA;
+            
+            new Thread(new Runnable() {
+                public void run() {
+                 
+                        if(setData(lastDisplayed)){
+                        String tmp = null;
+                        tmp = sb.toString().trim();
+                        
+                        if ("DONE".equals(tmp) ) {
+                            
+                           
+                            display.setCurrent(lastDisplayed);
+                           
+                            errorAlert = new Alert("Done", "Suppression done with success", null,AlertType.INFO);
+                            errorAlert.setTimeout(3000);
+                            display.setCurrent(errorAlert);
+                            
+                        }else{
+                            
+                            display.setCurrent(inscrireForm);
+                            
+                            errorAlert = new Alert("Error", sb.toString().trim(), null,AlertType.ERROR);
+                            errorAlert.setTimeout(3000);
+                            display.setCurrent(errorAlert);
+                        }
+                    }
+                   
+                }
+            }).start();
+
+            
+            
         }
         // </editor-fold>
         
@@ -891,7 +927,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 //display.flashBacklight(2000);
             }
             
-            //Ce bout de code est ajouté pour refrachir la liste aprés suppression
+            //Ce bout de code est ajoutÃ© pour refrachir la liste aprÃ©s suppression
             runState = "Gerants";
             urlX="Utilisateur/getXmlGerants.php";
             new Thread(new Runnable() {
@@ -907,7 +943,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             //display.setCurrent(connectingSegment());
         }
         // </editor-fold>
-        // <editor-fold defaultstate="collapsed" desc="Details Gerant à Modifier">
+        // <editor-fold defaultstate="collapsed" desc="Details Gerant Ã  Modifier">
         if(c==modifierG && d==fgerant){
             fModifGerant=new Form("Modifier Gerant");
             txt_nom=new TextField("Nom", gerantModif.getMail(), 20, TextField.ANY);
@@ -932,7 +968,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             //System.out.println(gerantModif.toString());
         }
         // </editor-fold>
-        // <editor-fold defaultstate="collapsed" desc="Confirmer aprés Modification">
+        // <editor-fold defaultstate="collapsed" desc="Confirmer aprÃ©s Modification">
         if(c==confirmerModifG&&d==fModifGerant){
             //System.out.println("2222222222222222222222222222222222");
             urlX="Utilisateur/getXmlUpdateGerant.php?id="+gerantModif.getId()+"&nom="+txt_nom.getString()+
@@ -940,7 +976,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                     + "&mail="+txt_mail.getString()+"&pwd="+txt_pwd.getString()
                     + "&mobile="+txt_mobile.getString()+"&fix="+txt_fix.getString()+"&status="+txt_status.getString();
             lastDisplayed = display.getCurrent();
-            //System.out.println("Modification mchét :D!");
+            //System.out.println("Modification mchÃ©t :D!");
             if(setData(lastDisplayed)){
                 errorAlert = new Alert("Done", sb.toString().trim(), null,AlertType.INFO);
                 errorAlert.setTimeout(3000);
@@ -1706,6 +1742,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             sb.append("\n");
         }
         res = sb.toString();
+        idA = archives[i].getId();
         sb = new StringBuffer("");
         return res;
     }
