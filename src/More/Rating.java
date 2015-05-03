@@ -32,9 +32,7 @@ import javax.microedition.lcdui.Image;
  * @author FATHALLAH Wael
  */
 public class Rating extends Canvas {
-    int[] data;
-    
-    int colors[] = { 0xFF0000, 0xFFa500, 0xFFFF00, 0xadff2f, 0x32cd32 };
+
     private Image image1;
     private Image image2;
     String urlX = "";
