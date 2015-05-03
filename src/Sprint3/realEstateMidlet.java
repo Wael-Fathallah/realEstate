@@ -777,6 +777,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             
         }
         // </editor-fold>
+        
         // <editor-fold defaultstate="collapsed" desc=" delete Command ">
          if(c==cmdDelete){
             try {
@@ -837,15 +838,19 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 item1.setDefaultCommand(rateC);
                 
                 formO.append(item);
-                if(CorG == 1){
+                if(CorG == 2){
                 formO.append(item1);
                 }
                 formO.setCommandListener(this);
                 Compose   =   new Command("Compose avec Message", Command.OK, 0);
                 ComposeSMS   =   new Command("Contacter avec SMS", Command.OK, 0);
+                cmdDelete =   new Command("Suprimer", Command.OK, 0);
                 formO.addCommand(back);
                 formO.addCommand(Compose);
                 formO.addCommand(ComposeSMS);
+                if(CorG == 1){
+                formO.addCommand(cmdDelete);
+                }
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -1712,7 +1717,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     }
     // </editor-fold>
     
-     // <editor-fold defaultstate="collapsed" desc=" deleteOffre ">
+    // <editor-fold defaultstate="collapsed" desc=" deleteOffre ">
      public void deleteOffre(int i) throws IOException{
         HttpConnection hc = (HttpConnection) Connector.open("http://localhost/pidev_sprint2/web/app_dev.php/v1/os/"+offres[i].getId()+"/offres.json");;
         hc.setRequestMethod("POST");
@@ -1723,7 +1728,6 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     }
       // </editor-fold>
      
-    
     // <editor-fold defaultstate="collapsed" desc=" ShowOffre ">
     private String showOffre(int i) {
         String res = "";
