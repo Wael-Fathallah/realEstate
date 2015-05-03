@@ -134,6 +134,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private Command     inbox;
     private Command     sent;
     private Command     Compose;
+    private Command     ComposeSMS;
     private Command     send;
     private Command     suppMess;
     private Command     findMess;
@@ -142,6 +143,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private TextBox     bodyM;
     private TextBox     oneMail;
     private String      oneMailId;
+    private String      idToSend;
     
     // </editor-fold>
     
@@ -198,6 +200,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private TextField txt_status;
     private boolean stopSound = false;
     static Player tonePlayer = null;
+    private String numberToSend;
     
     // </editor-fold>
     
@@ -452,13 +455,14 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             
             supprimerC   =   new Command("Supprimer Le Client", Command.SCREEN, 0);
             modifierC   =   new Command("Modifier Le Client", Command.SCREEN, 0);
+            Compose   =   new Command("Compose avec Message", Command.OK, 0);
+            
             ClientF.addCommand(back);
             ClientF.addCommand(supprimerC);
             ClientF.addCommand(modifierC);
+            ClientF.addCommand(Compose);
             
-            
-            ClientF.setCommandListener(this);
-            
+            ClientF.setCommandListener(this);           
             display.setCurrent(ClientF);
             
         }
@@ -621,8 +625,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         }
         if (c == send) {
             
-            urlX="Boitemessages/sendMessage.php?myID="+myID+"&mail="+userName+"&pass="+userPass+"&user="+userType+"&body="+bodyM.getString().trim()+"&sendMail="+"wael.fathallah@esprit.tn";
-            lastDisplayed = display.getCurrent();
+            urlX="Boitemessages/sendMessage.php?myID="+myID+"&mail="+userName+"&pass="+userPass+"&user="+userType+"&body="+bodyM.getString().trim()+"&sendMail="+idToSend;
+            System.out.println(urlX);
             display.setCurrent(connectingSegment());
             new Thread(new Runnable() {
                 public void run() {
@@ -635,12 +639,13 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                         tok = new StringTokenizer(tmp,"|");
                         tmp = tok.nextToken();
                         if ("OKS".equals(tmp)) {
-                            display.setCurrent(wellcomeSegment(myName));
+                            display.setCurrent(lastDisplayed);
                             errorAlert = new Alert("Done", "Message send with success", null,AlertType.INFO);
                             errorAlert.setTimeout(3000);
                             display.setCurrent(errorAlert);
                             
                         }else{
+                            display.setCurrent(lastDisplayed);
                             errorAlert = new Alert("Error", sb.toString().trim(), null,AlertType.ERROR);
                             errorAlert.setTimeout(3000);
                             display.setCurrent(errorAlert);
@@ -794,10 +799,15 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 item1.setDefaultCommand(rateC);
                 
                 formO.append(item);
+                if(CorG == 1){
                 formO.append(item1);
+                }
                 formO.setCommandListener(this);
-                
+                Compose   =   new Command("Compose avec Message", Command.OK, 0);
+                ComposeSMS   =   new Command("Contacter avec SMS", Command.OK, 0);
                 formO.addCommand(back);
+                formO.addCommand(Compose);
+                formO.addCommand(ComposeSMS);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -907,8 +917,12 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             fgerant.addCommand(back);
             supprimerG = new Command("Supprimer", Command.EXIT, 0);
             modifierG=new Command("Modifier", Command.EXIT,0);
+            Compose   =   new Command("Compose avec Message", Command.OK, 0);
+            ComposeSMS   =   new Command("Contacter avec SMS", Command.OK, 0);
             fgerant.addCommand(supprimerG);
             fgerant.addCommand(modifierG);
+            fgerant.addCommand(Compose);
+            fgerant.addCommand(ComposeSMS);
             fgerant.setCommandListener(this);
             display.setCurrent(fgerant);
             
@@ -953,6 +967,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             txt_mobile=new TextField("Numero Mobile", gerantModif.getNumMobile(), 20, TextField.PHONENUMBER);
             txt_fix=new TextField("Numero Fix", gerantModif.getNumFix(), 20, TextField.PHONENUMBER);
             txt_status=new TextField("Status", gerantModif.getStatMAtri(), 20, TextField.ANY);
+            
             fModifGerant.append(txt_nom);
             fModifGerant.append(txt_prenom);
             fModifGerant.append(txt_mail);
@@ -986,6 +1001,14 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             
         }
         // </editor-fold>
+        // </editor-fold>
+        
+        // <editor-fold defaultstate="collapsed" desc=" Stat Command ">
+        if (c == ComposeSMS) {
+            
+            display.setCurrent(new SMS(this, numberToSend));
+            
+        }
         // </editor-fold>
         
     }
@@ -1500,14 +1523,14 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             
             
             inbox  =   new Command("Inbox", Command.OK, 0);
-            Compose   =   new Command("Compose", Command.OK, 0);
+            //Compose   =   new Command("Compose", Command.OK, 0);
             sent   =   new Command("Sent", Command.OK, 0);
             exit   =   new Command("Exit", Command.OK, 0);
             openFindMessBox = new Command("Find", Command.EXIT, 0);
             lstB.addCommand(back);
             lstB.addCommand(inbox);
             lstB.addCommand(sent);
-            lstB.addCommand(Compose);
+            //lstB.addCommand(Compose);
             lstB.addCommand(openFindMessBox);
             lstB.addCommand(exit);
             
@@ -1679,6 +1702,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         }
         res = sb.toString();
         sb = new StringBuffer("");
+        idToSend = Integer.toString(offres[i].getId_gerant());
+        numberToSend ="123456789";
         return res;
     }
     // </editor-fold>
@@ -1772,7 +1797,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         }
         res1 = sb.toString();
         sb = new StringBuffer("");
-        
+        idToSend = utilisateur[i].getId();
         return res1;
         
     }
@@ -2370,7 +2395,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         
         idGerantSupp=utilisateur[i].getId();
         gerantModif=(Utilisateur)utilisateur[i];
-        
+        idToSend = utilisateur[i].getId();
+        numberToSend= utilisateur[i].getNumMobile();
         res = sb.toString();
         sb = new StringBuffer("");
         return res;
@@ -2398,6 +2424,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         }
     }
     // </editor-fold>
+    
     // </editor-fold>
     
 }
