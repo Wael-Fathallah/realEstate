@@ -91,7 +91,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     
     private Displayable lastDisplayed;
     ScreenSplashForm sp ;
-    private Hello x = new Hello(this);
+    private Canvas x;
+
     
     //Connexion
     HttpConnection hc;
@@ -333,7 +334,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                             myID = tok.nextToken();
                             myName = tok.nextToken();
                             //display.setCurrent(wellcomeSegment(myName));
-                            
+                            x = new HelloU();
                             x.setTitle("Welcome " + myName);
                             display.setCurrent(x);
                         }else if ("OK1".equals(tmp)) {
@@ -341,7 +342,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                             myID = tok.nextToken();
                             myName = tok.nextToken();
                             //display.setCurrent(wellcomeSegment(myName));
-                            
+                            x = new HelloG();
                             x.setTitle("Welcome " + myName);
                             display.setCurrent(x);
                         }else if ("OKA".equals(tmp)) {
@@ -349,7 +350,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                             myID = "0";
                             myName = "Admin";
                             //display.setCurrent(wellcomeSegment(myName));
-                            
+                            x = new HelloA();
                             x.setTitle("Welcome " + myName);
                             display.setCurrent(x);
                         }else{
@@ -374,8 +375,10 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             userType = 1;
             lastDisplayed = display.getCurrent();
             if(CorG==2){
+                x = new HelloU();
                 urlX="AUTH/regC.php?mail="+userName+"&pass="+userPass+"&nom="+nom.getString().trim()+"&prenom="+prenom.getString().trim()+"&stat="+"&imgurl="+imageName;
             }else{
+                x = new HelloG();
                 urlX="AUTH/regG.php?mail="+userName+"&pass="+userPass+"&nom="+nom.getString().trim()+
                         "&prenom="+prenom.getString().trim()+
                         "&numMob="+numMob.getString().trim()+
@@ -397,6 +400,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                             tok = new StringTokenizer(sb.toString().trim(),"|");
                             tmp = tok.nextToken();
                             tmp = tok.nextToken();
+                            
                             x.setTitle("Welcome " + myName);
                             display.setCurrent(x);
                             //display.setCurrent(wellcomeSegment(myName));
@@ -1783,8 +1787,240 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     }
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc=" wellcomeCanvas ">
-    class Hello extends Canvas implements Runnable {
+    // <editor-fold defaultstate="collapsed" desc=" wellcomeUCanvas ">
+    class HelloU extends Canvas{
+        
+        private Image image;
+        private Image image1;
+        private Image image2;
+        private Image image3;
+        private Image image4;
+        private Display d;
+        private MIDlet m;
+        
+        
+        public HelloU(){
+            
+            try{
+                image = Image.createImage("/icons/backscreen.png");
+                
+                image1 = Image.createImage("/icons/mailx.png");
+                
+                
+                image2 = Image.createImage("/icons/mailxc.png");
+                
+                image3 = Image.createImage("/icons/offrex.png");
+                image4 = Image.createImage("/icons/offrexc.png");
+                
+                
+            }
+            catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+        int width = getWidth();
+        int height = getHeight();
+        int x =1;
+        int dec =0;
+        /**
+         * Paints the image centered on the screen.
+         */
+        public void paint(Graphics g) {
+            
+            
+            //set background color to overdraw what ever was previously displayed
+            
+            g.setColor(0x000000);
+            g.fillRect(0,0, width, height);
+            g.drawImage(image, 0, 0,0);
+            
+            g.drawImage(image1, 15, 5+dec,0);
+            g.drawImage(image2, width-84-15, 5+dec,0);
+            
+            
+            if (x==1){
+                g.drawImage(image3, 15, 3+dec,0);
+            }
+            if (x==2){
+                g.drawImage(image4, width-84-15, 3+dec,0);
+            }
+            
+        }
+        
+        protected void keyPressed(int keyCode) {
+            
+            int gameAction = getGameAction(keyCode);
+            String key=getKeyName(keyCode);
+            if(gameAction == RIGHT && x<2){
+                x+=1;
+            }else if(gameAction == LEFT && x>1){
+                x-=1;
+            }
+            repaint();
+        }
+        
+        protected void keyReleased(int keyCode) {
+            int gameAction = getGameAction(keyCode);
+            String key=getKeyName(keyCode);
+            if(gameAction == FIRE){
+                if(x==1){
+                    runState = "Inbox";
+                    lastDisplayed = display.getCurrent();
+                    urlX="Boitemessages/getXmlMessage.php?myID="+myID+"&IorS=I&mail="+userName+"&pass="+userPass+"&user="+userType;
+                    display.setCurrent(connectingSegment());
+                    new Thread(new Runnable() {
+                        public void run() {
+                            try {
+                                BoitemessagesHandler(lastDisplayed);
+                            } catch (IOException ex) {
+                            }
+                        }
+                    }).start();
+                }
+            } else if (x == 2){
+                lastDisplayed = display.getCurrent();
+                display.setCurrent(connectingSegment());
+                new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            OffreHandler(lastDisplayed);
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }).start();
+                
+            }
+        }
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" wellcomeGCanvas ">
+    class HelloG extends Canvas{
+        
+        private Image image;
+        private Image image1;
+        private Image image2;
+        private Image image3;
+        private Image image4;
+        private Display d;
+        private MIDlet m;
+        private Image image5;
+        private Image image6;
+        
+        /**
+         * The constructor attempts to load the named image and begins a timeout
+         * thread. The splash screen can be dismissed with a key press,
+         * a pointer press, or a timeout
+         * @param offreMidlet instance of MIDlet
+         */
+        public HelloG(){
+            
+            try{
+                image = Image.createImage("/icons/backscreen.png");
+                image1 = Image.createImage("/icons/mailx.png");
+                image2 = Image.createImage("/icons/mailxc.png");
+                image3 = Image.createImage("/icons/offrex.png");
+                image4 = Image.createImage("/icons/offrexc.png");
+                image5 = Image.createImage("/icons/ajoffrex.png");
+                image6 = Image.createImage("/icons/ajoffrexc.png");
+                
+                
+                
+            }
+            catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+        int width = getWidth();
+        int height = getHeight();
+        int x =1;
+        int dec =0;
+        /**
+         * Paints the image centered on the screen.
+         */
+        public void paint(Graphics g) {
+            
+            
+            //set background color to overdraw what ever was previously displayed
+            
+            g.setColor(0x000000);
+            g.fillRect(0,0, width, height);
+            g.drawImage(image, 0, 0,0);
+            
+            g.drawImage(image1, 15, 5+dec,0);
+            g.drawImage(image3, width-84-15, 5+dec,0);
+            
+            g.drawImage(image5, 15, 85+2+5+dec,0);
+            
+            if (x==1){
+                g.drawImage(image2, 15, 3+dec,0);
+            }
+            if (x==2){
+                g.drawImage(image4, width-84-15, 3+dec,0);
+            }
+            if (x==3){
+                g.drawImage(image6, 15, 85+2+3+dec,0);
+            }
+            
+        }
+        
+        protected void keyPressed(int keyCode) {
+            
+            int gameAction = getGameAction(keyCode);
+            String key=getKeyName(keyCode);
+            if(gameAction == RIGHT && x<3){
+                x+=1;
+            }else if(gameAction == LEFT && x>1){
+                x-=1;
+            }else if(gameAction == DOWN && x<2){
+                x+=2;
+            }else if(gameAction == UP && x>2){
+                x-=2;
+            }
+            repaint();
+        }
+        
+        protected void keyReleased(int keyCode) {
+            int gameAction = getGameAction(keyCode);
+            String key=getKeyName(keyCode);
+            if(gameAction == FIRE){
+                if(x==1){
+                    runState = "Inbox";
+                    lastDisplayed = display.getCurrent();
+                    urlX="Boitemessages/getXmlMessage.php?myID="+myID+"&IorS=I&mail="+userName+"&pass="+userPass+"&user="+userType;
+                    display.setCurrent(connectingSegment());
+                    new Thread(new Runnable() {
+                        public void run() {
+                            try {
+                                BoitemessagesHandler(lastDisplayed);
+                            } catch (IOException ex) {
+                            }
+                        }
+                    }).start();
+                } else if (x == 2){
+                    lastDisplayed = display.getCurrent();
+                    display.setCurrent(connectingSegment());
+                    new Thread(new Runnable() {
+                        public void run() {
+                            try {
+                                OffreHandler(lastDisplayed);
+                            } catch (IOException ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    }).start();
+                } else if (x == 3){
+                    ajtForm=new offreAjoutForm(realEstateMidlet.this,myID,realEstateMidlet.this.display.getCurrent());
+                     display.setCurrent(ajtForm);
+                }
+            }
+        }
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" wellcomeACanvas ">
+    class HelloA extends Canvas{
         
         private Image image;
         private Image image1;
@@ -1803,17 +2039,9 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         private Image image12;
         private Image image13;
         private Image image14;
-        realEstateMidlet mid;
-        
-        /**
-         * The constructor attempts to load the named image and begins a timeout
-         * thread. The splash screen can be dismissed with a key press,
-         * a pointer press, or a timeout
-         * @param offreMidlet instance of MIDlet
-         */
-        public Hello(realEstateMidlet mid){
-            this.mid=mid;
-            
+
+        public HelloA(){
+
             try{
                 image = Image.createImage("/icons/backscreen.png");
                 image1 = Image.createImage("/icons/adminsx.png");
@@ -1830,8 +2058,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 image12 = Image.createImage("/icons/statxc.png");
                 image13 = Image.createImage("/icons/offrex.png");
                 image14 = Image.createImage("/icons/offrexc.png");
-                Thread t = new Thread(this);
-                t.start();
+
+                
             }
             catch(IOException e){
                 e.printStackTrace();
@@ -1889,32 +2117,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 g.drawImage(image14, 15, 85+85+85+6+3+dec,0);
             }
         }
-        
-        
-        
-        public void dismiss() {
-            //mid.setCurrent(mxc);
-        }
-        
-        /**
-         * Default timeout with thread
-         */
-        public void run() {
-            try {
-                Thread.sleep(3000);//set for 3 seconds
-            }
-            catch (InterruptedException e) {
-                System.out.println("InterruptedException");
-                e.printStackTrace();
-            }
-            dismiss();
-        }
-        
-        /**
-         * A key release event triggers the dismiss()
-         * method to be called.
-         */
-        
+
         protected void keyPressed(int keyCode) {
             
             int gameAction = getGameAction(keyCode);
@@ -2019,8 +2222,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                     display.setCurrent(connectingSegment());
                 }
             }else if(x==1){
-                     ajtForm=new offreAjoutForm(this.mid,myID,this.mid.display.getCurrent());
-                     display.setCurrent(ajtForm);
+                     
                 }
         }
     }
