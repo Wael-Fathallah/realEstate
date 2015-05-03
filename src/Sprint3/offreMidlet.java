@@ -1,8 +1,8 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+* To change this license header, choose License Headers in Project Properties.
+* To change this template file, choose Tools | Templates
+* and open the template in the editor.
+*/
 package Sprint3;
 
 import Entity.*;
@@ -32,7 +32,7 @@ import javax.xml.parsers.SAXParserFactory;
  * @author seif
  */
 public class offreMidlet extends MIDlet implements CommandListener, Runnable {
-
+    
     Display disp = Display.getDisplay(this);
     
     
@@ -50,11 +50,11 @@ public class offreMidlet extends MIDlet implements CommandListener, Runnable {
     Form loadingDialog = new Form("Please Wait");
     
     StringBuffer sb = new StringBuffer();
-
+    
     private Canvas[] canvases;
-
+    
     public void startApp() {
- 
+        
         f.append("Click Offres to get your offres_list");
         f.addCommand(cmdParse);
         f.setCommandListener(this);
@@ -66,20 +66,20 @@ public class offreMidlet extends MIDlet implements CommandListener, Runnable {
         form.setCommandListener(this);
         disp.setCurrent(f);
     }
-
+    
     public void pauseApp() {
     }
-
+    
     public void destroyApp(boolean unconditional) {
     }
-
+    
     public void commandAction(Command c, Displayable d) {
         if (c == cmdParse) {
             disp.setCurrent(loadingDialog);
             Thread th = new Thread(this);
             th.start();
         }
-
+        
         if (c == List.SELECT_COMMAND) {
             this.selectedIndex=lst.getSelectedIndex();
             form.append("Informations Offre: \n");
@@ -93,7 +93,7 @@ public class offreMidlet extends MIDlet implements CommandListener, Runnable {
             }
             disp.setCurrent(form);
         }
-
+        
         if (c == cmdBack) {
             form.deleteAll();
             disp.setCurrent(lst);
@@ -107,12 +107,12 @@ public class offreMidlet extends MIDlet implements CommandListener, Runnable {
             }
         }
     }
-
+    
     public void run() {
         try {
             // this will handle our XML
             OffreHandler offresHandler = new OffreHandler();
-           
+            
             // get a parser object
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
             // get an InputStream from somewhere (could be HttpConnection, for example)
@@ -121,22 +121,22 @@ public class offreMidlet extends MIDlet implements CommandListener, Runnable {
             parser.parse(dis, offresHandler);
             // display the result
             offres = offresHandler.getOffres();
-
+            
             if (offres.length > 0) {
                 for (int i = 0; i < offres.length; i++) {
-
+                    
                     lst.append(offres[i].getDescription(), this.getImage(i));
-
+                    
                 }
             }
-          
+            
         } catch (Exception e) {
             System.out.println("Exception:" + e.toString());
         }
-
+        
         disp.setCurrent(lst);
     }
-
+    
     private String showOffre(int i) {
         String res = "";
         if (offres.length > 0) {
@@ -160,48 +160,48 @@ public class offreMidlet extends MIDlet implements CommandListener, Runnable {
             sb.append("\n");
             sb.append("*surface: ");
             sb.append(offres[i].getSurface());
-
+            
         }
         res = sb.toString();
         sb = new StringBuffer("");
         return res;
     }
-
+    
     private Image getImage(int i) throws IOException {
         ContentConnection connection = (ContentConnection) Connector.open(offres[i].getUrlImage());
-
-    // * There is a bug in MIDP 1.0.3 in which read() sometimes returns
-        //   an invalid length. To work around this, I have changed the 
+        
+        // * There is a bug in MIDP 1.0.3 in which read() sometimes returns
+        //   an invalid length. To work around this, I have changed the
         //   stream to DataInputStream and called readFully() instead of read()
 //    InputStream iStrm = connection.openInputStream();
         DataInputStream iStrm = connection.openDataInputStream();
-
+        
         ByteArrayOutputStream bStrm = null;
         Image im = null;
-
+        
         try {
             // ContentConnection includes a length method
             byte imageData[];
             int length = (int) connection.getLength();
             if (length != -1) {
                 imageData = new byte[length];
-
+                
                 // Read the png into an array
-//        iStrm.read(imageData);        
+//        iStrm.read(imageData);
                 iStrm.readFully(imageData);
             } else // Length not available...
             {
                 bStrm = new ByteArrayOutputStream();
-
+                
                 int ch;
                 while ((ch = iStrm.read()) != -1) {
                     bStrm.write(ch);
                 }
-
+                
                 imageData = bStrm.toByteArray();
                 bStrm.close();
             }
-
+            
             // Create the image from the byte array
             im = Image.createImage(imageData, 0, imageData.length);
         } finally {
@@ -222,9 +222,9 @@ public class offreMidlet extends MIDlet implements CommandListener, Runnable {
     public void deleteOffre(int i) throws IOException{
         HttpConnection hc = (HttpConnection) Connector.open("http://localhost/pidev_sprint2/web/app_dev.php/v1/os/"+offres[i].getId()+"/offres.json");;
         hc.setRequestMethod("POST");
-        System.out.println(hc.getResponseMessage()); 
-         
-         System.out.println("http://localhost/pidev_sprint2/web/app_dev.php/v1/os/"+offres[i].getId()+"/offres.json");
-       
+        System.out.println(hc.getResponseMessage());
+        
+        System.out.println("http://localhost/pidev_sprint2/web/app_dev.php/v1/os/"+offres[i].getId()+"/offres.json");
+        
     }
 }

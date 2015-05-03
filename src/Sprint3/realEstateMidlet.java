@@ -92,7 +92,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private Displayable lastDisplayed;
     ScreenSplashForm sp ;
     private Canvas x;
-
+    
     
     //Connexion
     HttpConnection hc;
@@ -102,7 +102,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     StringBuffer sb = new StringBuffer();
     int ch;
     offreAjoutForm ajtForm;
-   
+    
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Login Screen ">
@@ -201,7 +201,6 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     
     // </editor-fold>
     
-    
     // <editor-fold defaultstate="collapsed" desc=" Archive Screen">
     private List  lstA;
     private Command     archiveCom;
@@ -219,7 +218,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     
     // <editor-fold defaultstate="collapsed" desc=" Am not here so leave me alone">
     public realEstateMidlet() {
-       
+        
         currDirName = MEGA_ROOT;
         //for loading images
         try {
@@ -245,12 +244,12 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         display = Display.getDisplay(this);
         if(myID!=null){
             display.setCurrent(sp);
-           // display.setCurrent(ajtForm);
+            // display.setCurrent(ajtForm);
         }else{
-
+            
             sp =new ScreenSplashForm(display, loginSegment());
             display.setCurrent(sp);}
-
+        
         SMS msg = new SMS();
         msg.sendSms("123456789", "ahla");
         
@@ -1001,9 +1000,6 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             display.setCurrent(rateDisplayable);
         }
         // </editor-fold>
-    }
-    protected Form ajoutForm(){
-        return ajtForm;
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Segments Block ">
@@ -1797,7 +1793,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         private Image image4;
         private Display d;
         private MIDlet m;
-        
+        private Image image5;
         
         public HelloU(){
             
@@ -1805,13 +1801,11 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 image = Image.createImage("/icons/backscreen.png");
                 
                 image1 = Image.createImage("/icons/mailx.png");
-                
-                
                 image2 = Image.createImage("/icons/mailxc.png");
                 
                 image3 = Image.createImage("/icons/offrex.png");
                 image4 = Image.createImage("/icons/offrexc.png");
-                
+                image5 = Image.createImage("/icons/exit.png");
                 
             }
             catch(IOException e){
@@ -1822,6 +1816,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         int height = getHeight();
         int x =1;
         int dec =0;
+        String chouse = "InBOX";
         /**
          * Paints the image centered on the screen.
          */
@@ -1835,16 +1830,20 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             g.drawImage(image, 0, 0,0);
             
             g.drawImage(image1, 15, 5+dec,0);
-            g.drawImage(image2, width-84-15, 5+dec,0);
+            g.drawImage(image3, width-84-15, 5+dec,0);
             
             
             if (x==1){
-                g.drawImage(image3, 15, 3+dec,0);
+                g.drawImage(image2, 15, 3+dec,0);
+                chouse = "InBOX";
             }
             if (x==2){
                 g.drawImage(image4, width-84-15, 3+dec,0);
+                chouse = "List des offres";
             }
-            
+            g.drawImage(image5, 0, height-20, Graphics.BOTTOM|Graphics.LEFT);
+            g.setColor(0x000000);
+            g.drawString(chouse, 120, 278, 0);
         }
         
         protected void keyPressed(int keyCode) {
@@ -1855,6 +1854,9 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 x+=1;
             }else if(gameAction == LEFT && x>1){
                 x-=1;
+            }else if (gameAction == 0){
+                destroyApp(false);
+                notifyDestroyed();
             }
             repaint();
         }
@@ -1876,23 +1878,22 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                             }
                         }
                     }).start();
-                }
-            } else if (x == 2){
-                lastDisplayed = display.getCurrent();
-                display.setCurrent(connectingSegment());
-                new Thread(new Runnable() {
-                    public void run() {
-                        try {
-                            OffreHandler(lastDisplayed);
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
+                } else if (x == 2){
+                    lastDisplayed = display.getCurrent();
+                    display.setCurrent(connectingSegment());
+                    new Thread(new Runnable() {
+                        public void run() {
+                            try {
+                                OffreHandler(lastDisplayed);
+                            } catch (IOException ex) {
+                                ex.printStackTrace();
+                            }
                         }
-                    }
-                }).start();
-                
+                    }).start();
+                    
+                }
             }
-        }
-    }
+        }}
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" wellcomeGCanvas ">
@@ -1907,6 +1908,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         private MIDlet m;
         private Image image5;
         private Image image6;
+        private Image image7;
+        
         
         /**
          * The constructor attempts to load the named image and begins a timeout
@@ -1924,7 +1927,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 image4 = Image.createImage("/icons/offrexc.png");
                 image5 = Image.createImage("/icons/ajoffrex.png");
                 image6 = Image.createImage("/icons/ajoffrexc.png");
-                
+                image7 = Image.createImage("/icons/exit.png");
                 
                 
             }
@@ -1936,6 +1939,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         int height = getHeight();
         int x =1;
         int dec =0;
+        String chouse = "MailBOX";
         /**
          * Paints the image centered on the screen.
          */
@@ -1943,7 +1947,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             
             
             //set background color to overdraw what ever was previously displayed
-            
+            System.out.println(height);
             g.setColor(0x000000);
             g.fillRect(0,0, width, height);
             g.drawImage(image, 0, 0,0);
@@ -1953,15 +1957,23 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             
             g.drawImage(image5, 15, 85+2+5+dec,0);
             
+            
             if (x==1){
                 g.drawImage(image2, 15, 3+dec,0);
+                chouse = "MailBOX";
+                
             }
             if (x==2){
                 g.drawImage(image4, width-84-15, 3+dec,0);
+                chouse = "List offres";
             }
             if (x==3){
                 g.drawImage(image6, 15, 85+2+3+dec,0);
+                chouse = "Ajout offre";
             }
+            g.drawImage(image7, 0, height-20, Graphics.BOTTOM|Graphics.LEFT);
+            g.setColor(0x000000);
+            g.drawString(chouse, 120, 278, 0);
             
         }
         
@@ -1977,7 +1989,11 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 x+=2;
             }else if(gameAction == UP && x>2){
                 x-=2;
+            }else if (gameAction == 0){
+                destroyApp(false);
+                notifyDestroyed();
             }
+            
             repaint();
         }
         
@@ -2012,8 +2028,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                     }).start();
                 } else if (x == 3){
                     ajtForm=new offreAjoutForm(realEstateMidlet.this,myID,realEstateMidlet.this.display.getCurrent());
-                     display.setCurrent(ajtForm);
-                }
+                    display.setCurrent(ajtForm);
+                } 
             }
         }
     }
@@ -2039,9 +2055,10 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         private Image image12;
         private Image image13;
         private Image image14;
-
+        private Image image15;
+        
         public HelloA(){
-
+            
             try{
                 image = Image.createImage("/icons/backscreen.png");
                 image1 = Image.createImage("/icons/adminsx.png");
@@ -2058,7 +2075,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 image12 = Image.createImage("/icons/statxc.png");
                 image13 = Image.createImage("/icons/offrex.png");
                 image14 = Image.createImage("/icons/offrexc.png");
-
+                image15 = Image.createImage("/icons/exit.png");
                 
             }
             catch(IOException e){
@@ -2069,6 +2086,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         int height = getHeight();
         int x =1;
         int dec =0;
+        String chouse = "InBOX";
         /**
          * Paints the image centered on the screen.
          */
@@ -2097,27 +2115,38 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             g.drawImage(image13, 15, 170+85+6+5+dec,0);
             if (x==1){
                 g.drawImage(image7, 15, 3+dec,0);
+                chouse = "List des Admins";
             }
             if (x==2){
                 g.drawImage(image8, width-84-15, 3+dec,0);
+                chouse = "List des Gerant";
             }
             if (x==3){
                 g.drawImage(image9, 15, 85+2+3+dec,0);
+                chouse = "InBOX";
             }
             if (x==4){
                 g.drawImage(image10, width-84-15, 85+2+3+dec,0);
+                chouse = "List des Clients";
             }
             if (x==5){
                 g.drawImage(image11, 15, 85+85+4+3+dec,0);
+                chouse = "Archives";
             }
             if (x==6){
                 g.drawImage(image12, width-84-15, 85+85+4+3+dec,0);
+                chouse = "Statistique";
+                
             }
             if (x==7){
                 g.drawImage(image14, 15, 85+85+85+6+3+dec,0);
+                chouse = "List des offres";
             }
+            g.drawImage(image15, 0, height-20, Graphics.BOTTOM|Graphics.LEFT);
+            g.setColor(0x000000);
+            g.drawString(chouse, 120, 278, 0);
         }
-
+        
         protected void keyPressed(int keyCode) {
             
             int gameAction = getGameAction(keyCode);
@@ -2130,6 +2159,9 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 x+=2;
             }else if(gameAction == UP && x>2){
                 x-=2;
+            }else if(gameAction == 0){
+               destroyApp(false);
+               notifyDestroyed();
             }
             repaint();
         }
@@ -2222,8 +2254,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                     display.setCurrent(connectingSegment());
                 }
             }else if(x==1){
-                     
-                }
+                
+            }
         }
     }
     // </editor-fold>
