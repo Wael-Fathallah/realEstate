@@ -3,11 +3,14 @@
 package More;
 
 import java.io.IOException;
+import java.io.InputStream;
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
+import javax.microedition.media.Manager;
+import javax.microedition.media.Player;
 
 /**
  * A simple splash screen.
@@ -17,6 +20,8 @@ public class ScreenSplashForm extends Canvas implements Runnable {
     private Image image;
     private Display mid;
     private Form mxc;
+    private boolean stopSound = false;
+    static Player tonePlayer = null;
     /**
      * The constructor attempts to load the named image and begins a timeout
      * thread. The splash screen can be dismissed with a key press,
@@ -42,7 +47,7 @@ public class ScreenSplashForm extends Canvas implements Runnable {
     public void paint(Graphics g) {
         int width = getWidth();
         int height = getHeight();
-
+        playFromResource();
         //set background color to overdraw what ever was previously displayed
         g.setColor(0x000000);
         g.fillRect(0,0, width, height);
@@ -85,4 +90,25 @@ public class ScreenSplashForm extends Canvas implements Runnable {
     public void pointerReleased(int x, int y) {
        dismiss();
     }
+    // <editor-fold defaultstate="collapsed" desc=" API Audio ">
+    private void playFromResource() {
+        try {
+            InputStream in = getClass().getResourceAsStream("/audio/son.wav");
+            Player player = Manager.createPlayer(in, "audio/x-wav");
+            tonePlayer=player;
+            player.start();
+            
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    public void stopSound() {
+        stopSound = true;
+        if (tonePlayer != null) {
+            tonePlayer.close();
+            tonePlayer = null;
+        }
+    }
+    // </editor-fold>
 }

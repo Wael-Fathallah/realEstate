@@ -193,7 +193,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private String idGerantSupp;
     private Utilisateur gerantModif;
     private Command supprimerG;
-    private Command modifierG;
+    private Command modifierGX;
     private Command confirmerModifG;
     //Champs pour modifiacation gerant
     private TextField txt_nom;
@@ -508,7 +508,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                             tok = new StringTokenizer(sb.toString().trim(),"|");
                             tmp = tok.nextToken();
                             tmp = tok.nextToken();
-                            display.setCurrent(wellcomeSegment(myName));
+                            x.setTitle("Welcome " + myName);
+                            display.setCurrent(x);
                             myID =tmp;
                             errorAlert = new Alert("Done", "L'ajout a Ã©tÃ© effectue avec succes", null,AlertType.INFO);
                             errorAlert.setTimeout(3000);
@@ -816,6 +817,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         
         // <editor-fold defaultstate="collapsed" desc=" offre Command ">
         if (c == listOffreCom) {
+            offset=0;
             lastDisplayed = display.getCurrent();
             display.setCurrent(connectingSegment());
             new Thread(new Runnable() {
@@ -953,7 +955,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         //Retour vers la liste des gerants apres modification
         if(c==back && d==fgerant){
             display.setCurrent(lstG);
-            playFromResource();
+//            playFromResource();
+            
         }
         if(c==back && d==fModifGerant){
             display.setCurrent(fgerant);
@@ -984,11 +987,11 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             fgerant.append(showGerant(lstG.getSelectedIndex()));
             fgerant.addCommand(back);
             supprimerG = new Command("Supprimer", Command.EXIT, 0);
-            modifierG=new Command("Modifier", Command.EXIT,0);
+            modifierGX =new Command("Modifier", Command.EXIT,0);
             Compose   =   new Command("Compose avec Message", Command.OK, 0);
             ComposeSMS   =   new Command("Contacter avec SMS", Command.OK, 0);
             fgerant.addCommand(supprimerG);
-            fgerant.addCommand(modifierG);
+            fgerant.addCommand(modifierGX);
             fgerant.addCommand(Compose);
             fgerant.addCommand(ComposeSMS);
             fgerant.setCommandListener(this);
@@ -1026,7 +1029,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         }
         // </editor-fold>
         // <editor-fold defaultstate="collapsed" desc="Details Gerant Ã  Modifier">
-        if(c==modifierG && d==fgerant){
+        if(c==modifierGX && d==fgerant){
             fModifGerant=new Form("Modifier Gerant");
             txt_nom=new TextField("Nom", gerantModif.getMail(), 20, TextField.ANY);
             txt_prenom=new TextField("Prenom", gerantModif.getPassword(), 20, TextField.ANY);
@@ -1203,7 +1206,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         ajoutF.append(password);
         ajoutF.append(nom);
         ajoutF.append(prenom);
-        ajoutF.append(item);
+        
         ajoutF.addCommand(next);
         ajoutF.addCommand(back);
         ajoutF.setCommandListener(this);
@@ -1637,8 +1640,9 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             }
             
             exit   =   new Command("Exit", Command.OK, 0);
-            
+            ajoutC   =   new Command("Ajout Client", Command.OK, 0);
             lstC.addCommand(back);
+            lstC.addCommand(ajoutC);
             lstC.addCommand(exit);
             lstC.setCommandListener(this);
             display.setCurrent(lstC);
@@ -1665,8 +1669,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             offres = offresHandler.getOffres();
             lstO = new List("List Offre", List.IMPLICIT);
             lstO.addCommand(back);
-            lstO.addCommand(cmdDelete);
-            if(offset<20)
+            //lstO.addCommand(cmdDelete);
+            if(offset<15)
             lstO.addCommand(nextList);
             lstO.setCommandListener(this);
             if (offres.length > 0) {
@@ -2030,6 +2034,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                     new Thread(new Runnable() {
                         public void run() {
                             try {
+                                offset=0;
                                 OffreHandler(lastDisplayed);
                             } catch (IOException ex) {
                                 ex.printStackTrace();
@@ -2166,6 +2171,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                     new Thread(new Runnable() {
                         public void run() {
                             try {
+                                offset=0;
                                 OffreHandler(lastDisplayed);
                             } catch (IOException ex) {
                                 ex.printStackTrace();
@@ -2352,6 +2358,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                     new Thread(new Runnable() {
                         public void run() {
                             try {
+                                offset=0;
                                 OffreHandler(lastDisplayed);
                             } catch (IOException ex) {
                                 ex.printStackTrace();
