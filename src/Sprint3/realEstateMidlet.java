@@ -13,6 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 package Sprint3;
 
 import Entity.*;
@@ -70,16 +71,22 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private String  runState;
     private Form    connectForm;
     private StringItem messageLabel;
-    private String  myID = null;   //have to saved
+    private String  myID = null;
+    private int     ID;
     private String  myName = null; //have to saved
     private String  userName;      //have to saved
     private String  userPass;      //have to saved
     private int     userType;      //have to saved
     private int     CorG;
+
     private Displayable lastDisplayed;
     ScreenSplashForm sp ;
     private Hello x = new Hello();
     //Connexion
+
+   
+     //Connexion
+
     HttpConnection hc;
     DataInputStream dis;
     String url = "http://localhost/Pi_MOB_DAO/";
@@ -148,7 +155,14 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     private List        lstC;
     private Command listC;
     private Utilisateur[] utilisateur;
-    
+    private Command upload;
+  
+    private Form ClientF;
+    private Command ajoutC;
+    private Form ajoutF;
+    private Form modifierF;
+    private Command supprimerC;
+    private Command modifierC;
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Archive Screen">
@@ -338,7 +352,7 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                         StringTokenizer tok;
                         tok = new StringTokenizer(tmp,"|");
                         tmp = tok.nextToken();
-                        if ("OKR".equals(tmp)) {
+                        if ("OKR".equals(tmp) ) {
                             tok = new StringTokenizer(sb.toString().trim(),"|");
                             tmp = tok.nextToken();
                             tmp = tok.nextToken();
@@ -390,9 +404,145 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
             
             display.setCurrent(connectingSegment());
         }
+         if  (c == List.SELECT_COMMAND && d == lstC) {
+            ClientF=new Form("Plus d'informations");
+            ClientF.append("Informations : \n");
+            ClientF.append(showClient(lstC.getSelectedIndex()));
+            
+            supprimerC   =   new Command("Supprimer Le Client", Command.SCREEN, 0);
+            modifierC   =   new Command("Modifier Le Client", Command.SCREEN, 0);
+        
+            ClientF.addCommand(supprimerC);
+            ClientF.addCommand(modifierC);
+            ClientF.addCommand(exit);
+
+            ClientF.setCommandListener(this);
+
+            display.setCurrent(ClientF);
+            
+        }
         
         // </editor-fold>
+         
+        // <editor-fold defaultstate="collapsed" desc=" Ajout Client Command ">
+         if (d == ajoutF) {
+            runState = "Inscrire";
+            lastDisplayed = display.getCurrent();
+            userName = email.getString().trim();
+            userPass = password.getString().trim();
+            
+            userType = 1;
+            if(CorG==2){
+                urlX="AUTH/regC.php?mail="+userName+"&pass="+userPass+"&nom="+nom.getString().trim()+"&prenom="+prenom.getString().trim()+"&stat="+"&imgurl="+imageName;
+            }else{
+                urlX="AUTH/regC.php?mail="+userName+"&pass="+userPass+"&nom="+nom.getString().trim()+"&prenom="+prenom.getString().trim()+"&stat="+"&imgurl="+imageName;
+            }
+            display.setCurrent(connectingSegment());
+            new Thread(new Runnable() {
+                public void run() {
+                    
+                    
+                    if(setData(lastDisplayed)){
+                        String tmp = null;
+                        tmp = sb.toString().trim();
+                       StringTokenizer tok;
+                        tok = new StringTokenizer(tmp,"|");
+                        tmp = tok.nextToken();
+                        if ("OKR".equals(tmp) ) {
+                            tok = new StringTokenizer(sb.toString().trim(),"|");
+                            tmp = tok.nextToken();
+                            tmp = tok.nextToken();
+                            display.setCurrent(wellcomeSegment(myName));
+                            myID =tmp;
+                            errorAlert = new Alert("Done", "L'ajout a été effectue avec succes", null,AlertType.INFO);
+                            errorAlert.setTimeout(3000);
+                            display.setCurrent(errorAlert);
+                            
+                        }else{
+                            
+                            display.setCurrent(ajoutF);
+                            
+                            errorAlert = new Alert("Error", sb.toString().trim(), null,AlertType.ERROR);
+                            errorAlert.setTimeout(3000);
+                            display.setCurrent(errorAlert);
+                        }
+                    }
+                }
+            }).start();
+        }
+         if (c == ajoutC) {
+            
+            display.setCurrent(AjouterCSegment());
+            
+        }
         
+        // </editor-fold> 
+         
+        // <editor-fold defaultstate="collapsed" desc=" SupprimerClient Command ">
+         if (c == supprimerC ) {
+            runState = "ListC";
+            
+           lastDisplayed = display.getCurrent();
+            ID=Integer.parseInt(utilisateur[lstC.getSelectedIndex()].getId());
+           
+            urlX="Utilisateur/getXmlDeleteC.php?id="+ID;
+             
+            new Thread(new Runnable() {
+                    public void run() {
+                        try {              
+                            UtilisateurHandler(lastDisplayed);
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }).start();       
+
+            display.setCurrent(wellcomeSegment(myName));
+            
+          errorAlert = new Alert("Succes", "Le client a été supprimé ", null,AlertType.INFO);
+                            errorAlert.setTimeout(3000);
+                            display.setCurrent(errorAlert);
+          
+
+        }
+        
+        // </editor-fold>
+         
+        // <editor-fold defaultstate="collapsed" desc=" ModfierClient Command ">
+         if (c == next && d == modifierF) {
+            runState = "ListC";
+             lastDisplayed = display.getCurrent();
+            ID=Integer.parseInt(utilisateur[lstC.getSelectedIndex()].getId());
+            userName = email.getString().trim();
+            
+           
+            urlX="Utilisateur/getXmlUpdateC.php?id="+ID+"&mail="+userName+"&nom="+nom.getString().trim()+"&prenom="+prenom.getString().trim(); 
+             
+            new Thread(new Runnable() {
+                    public void run() {
+                        try {              
+                            UtilisateurHandler( lastDisplayed );
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }   
+                           
+                    }
+                }).start();       
+
+            
+            display.setCurrent(wellcomeSegment(myName));
+             errorAlert = new Alert("Succes", "Le client a été modifié avec succés", null,AlertType.INFO);
+                            errorAlert.setTimeout(3000);
+                            display.setCurrent(errorAlert);
+          
+
+        }
+        
+         if (c == modifierC)
+         {display.setCurrent(ModifierCSegment());}
+
+        // </editor-fold> 
+         
         // <editor-fold defaultstate="collapsed" desc=" MailBox Commands ">
         if (c == inbox) {
             
@@ -727,11 +877,11 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         password = new TextField("Password :", "", 50, TextField.PASSWORD);
         nom = new TextField("Nom :", "", 50, TextField.ANY);
         prenom = new TextField("Prenom :", "", 50, TextField.ANY);
-        inscrireForm = new Form("Inscrire Client");
+        inscrireForm = new Form("Inscription");
         next= new Command("S'inscrire", Command.EXIT, 0);
         exit= new Command("Exit", Command.OK, 0);
-        uploadC= new Command("Uploud image", Command.ITEM, 0);
-        StringItem item = new StringItem("", "Uploud image ", Item.BUTTON);
+        uploadC= new Command("Upload image", Command.ITEM, 0);
+        StringItem item = new StringItem("", "Upload image ", Item.BUTTON);
         item.setDefaultCommand(uploadC);
         item.setItemCommandListener(this);
         inscrireForm.append(email);
@@ -745,6 +895,53 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         return inscrireForm;
     }
     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" AjouterCSegment ">
+    private Form AjouterCSegment() {
+        CorG = 2;
+        email = new TextField("Email :", "", 50, TextField.ANY);
+        password = new TextField("Password :", "", 50, TextField.PASSWORD);
+        nom = new TextField("Nom :", "", 50, TextField.ANY);
+        prenom = new TextField("Prenom :", "", 50, TextField.ANY);
+        ajoutF= new Form("Ajouter");
+        next= new Command("Ajouter", Command.EXIT, 0);
+        exit= new Command("Exit", Command.OK, 0);
+        uploadC= new Command("Upload image", Command.ITEM, 0);
+        StringItem item = new StringItem("", "Upload image ", Item.BUTTON);
+        item.setDefaultCommand(uploadC);
+        item.setItemCommandListener(this);
+        ajoutF.append(email);
+        ajoutF.append(password);
+        ajoutF.append(nom);
+        ajoutF.append(prenom);
+        ajoutF.append(item);
+        ajoutF.addCommand(next);
+        ajoutF.addCommand(exit);
+        ajoutF.setCommandListener(this);
+        return ajoutF;
+    }
+    // </editor-fold> 
+    
+    // <editor-fold defaultstate="collapsed" desc=" ModifierCSegment ">
+    private Form ModifierCSegment() {
+        CorG = 2;
+        email = new TextField("Email :", "", 50, TextField.ANY);
+        password = new TextField("Password :", "", 50, TextField.PASSWORD);
+        nom = new TextField("Nom :", "", 50, TextField.ANY);
+        prenom = new TextField("Prenom :", "", 50, TextField.ANY);
+        modifierF= new Form("Modfier");
+        next= new Command("Modifier", Command.EXIT, 0);
+        exit= new Command("Exit", Command.OK, 0);
+        modifierF.append(email);
+        modifierF.append(password);
+        modifierF.append(nom);
+        modifierF.append(prenom);
+        modifierF.addCommand(next);
+        modifierF.addCommand(exit);
+        modifierF.setCommandListener(this);
+        return modifierF;
+    }
+    // </editor-fold> 
     
     // <editor-fold defaultstate="collapsed" desc=" inscrireGSegment ">
     private Form inscrireGSegment() {
@@ -786,11 +983,17 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         exit= new Command("Exit", Command.OK, 0);
         inbox= new Command("Inbox", Command.SCREEN, 0);
         statCom= new Command("Stat", Command.SCREEN, 0);
+
         listC   =   new Command("List Clients", Command.SCREEN, 0);
         listOffreCom  =   new Command("List Offre", Command.SCREEN, 0);
+
+       
+        ajoutC   =   new Command("Ajouter Client", Command.SCREEN, 0);
+
         XForm.addCommand(exit);
         XForm.addCommand(inbox);
         XForm.addCommand(listC);
+        XForm.addCommand(ajoutC);
         XForm.addCommand(statCom);
         XForm.addCommand(listOffreCom);
         XForm.setCommandListener(this);
@@ -1118,6 +1321,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     void UtilisateurHandler(Displayable lastDisplayeb) throws IOException{
         try {
             UtilisateurHandler utilisateurHandler = new UtilisateurHandler();
+
+            
             // get a parser object
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
             // get an InputStream from somewhere (could be HttpConnection, for example)
@@ -1297,6 +1502,15 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                 }
             }
             display.setCurrent(lstA);
+                    
+                back   =   new Command("Back", Command.EXIT, 0);
+                exit   =   new Command("Exit", Command.OK, 0);
+                
+                
+                lstA.addCommand(back);
+                lstA.addCommand(exit);
+                lstA.setCommandListener(this);
+                display.setCurrent(lstA);
         } catch (ParserConfigurationException ex) {
             problemCallMe(lastDisplayeb);
         } catch (SAXException ex) {
@@ -1326,6 +1540,36 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
         res = sb.toString();
         sb = new StringBuffer("");
         return res;
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc=" showClent ">
+    private String showClient(int i) {
+         String res1 = "";
+        if (utilisateur.length > 0) {
+            sb = new StringBuffer();
+            sb.append("* ");
+            sb.append(utilisateur[i].getId());
+            sb.append("\n");
+            sb.append("* Nom : ");
+            sb.append(utilisateur[i].getNom());
+            sb.append("\n");
+            sb.append("* Prenom : ");
+            sb.append(utilisateur[i].getPrenom());
+            sb.append("\n");
+            sb.append("* Mail :");
+            sb.append(utilisateur[i].getMail());
+            sb.append("\n");
+            sb.append("* Statut Matrimonial :");
+            sb.append(utilisateur[i].getStatMAtri());
+            
+            
+        }
+        res1 = sb.toString();
+        sb = new StringBuffer("");
+        
+        return res1;
+        
     }
     // </editor-fold>
     
@@ -1576,6 +1820,20 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
                             }
                         }
                     }).start();
+                } else if (x==4){
+                    runState = "ListC";
+                    lastDisplayed = display.getCurrent();
+                    urlX="Utilisateur/getXmlClientsC.php";
+                    new Thread(new Runnable() {
+                        public void run() {
+                            try {
+                                UtilisateurHandler(lastDisplayed);
+                            } catch (IOException ex) {
+                            }
+                        }
+                    }).start();
+
+                    display.setCurrent(connectingSegment());
                 }
             }
         }
@@ -1583,5 +1841,8 @@ public class realEstateMidlet extends MIDlet implements CommandListener, ItemCom
     // </editor-fold>
     
     // </editor-fold>
+   
     
+
+
 }

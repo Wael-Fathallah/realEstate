@@ -50,6 +50,7 @@ public class UtilisateurHandler extends DefaultHandler {
         utilisateurs.copyInto(utilisateurss);
         return utilisateurss;
     }
+  
     // VARIABLES TO MAINTAIN THE PARSER'S STATE DURING PROCESSING
     private Utilisateur currentUtilisateur;
 
@@ -60,10 +61,10 @@ public class UtilisateurHandler extends DefaultHandler {
             currentUtilisateur = new Utilisateur();
             
             currentUtilisateur.setId(attributes.getValue("u0"));
-            currentUtilisateur.setMail(attributes.getValue("u3"));
-            currentUtilisateur.setPassword(attributes.getValue("u4"));
-            currentUtilisateur.setNom(attributes.getValue("u1"));
-            currentUtilisateur.setPrenom(attributes.getValue("u2"));
+            currentUtilisateur.setMail(attributes.getValue("u1"));
+            currentUtilisateur.setPassword(attributes.getValue("u2"));
+            currentUtilisateur.setNom(attributes.getValue("u3"));
+            currentUtilisateur.setPrenom(attributes.getValue("u4"));
             currentUtilisateur.setNumMobile(attributes.getValue("u5"));
             currentUtilisateur.setNumFix(attributes.getValue("u6"));
             currentUtilisateur.setStatMAtri(attributes.getValue("u7"));
@@ -73,13 +74,13 @@ public class UtilisateurHandler extends DefaultHandler {
             
         } else if (qName.equals("u0")) {
             idTag = "open";
-        } else if (qName.equals("u3")) {
-            mailTag = "open";
-        } else if (qName.equals("u4")) {
-            passTag = "open";
         } else if (qName.equals("u1")) {
-            nomTag = "open";
+            mailTag = "open";
         } else if (qName.equals("u2")) {
+            passTag = "open";
+        } else if (qName.equals("u3")) {
+            nomTag = "open";
+        } else if (qName.equals("u4")) {
             prenTag = "open";
         } else if (qName.equals("u5")) {
             numMTag = "open";
@@ -103,13 +104,13 @@ public class UtilisateurHandler extends DefaultHandler {
             currentUtilisateur = null;
         } else if (qName.equals("u0")) {
             idTag = "close";
-        } else if (qName.equals("u3")) {
-            mailTag = "close";
-        } else if (qName.equals("u4")) {
-            passTag = "close";
         } else if (qName.equals("u1")) {
-            nomTag = "close";
+            mailTag = "close";
         } else if (qName.equals("u2")) {
+            passTag = "close";
+        } else if (qName.equals("u3")) {
+            nomTag = "close";
+        } else if (qName.equals("u4")) {
             prenTag = "close";
         } else if (qName.equals("u5")) {
             numMTag = "close";
